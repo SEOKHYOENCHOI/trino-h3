@@ -1,16 +1,16 @@
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.common.type.IntegerType.INTEGER;
+import static io.trino.spi.type.IntegerType.INTEGER;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.block.BlockBuilder;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.Collection;
 
 /** Wraps https://h3geo.org/docs/api/inspection/ */
@@ -21,7 +21,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.INTEGER)
   public static Long getResolution(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return Long.valueOf(H3Plugin.h3.getResolution(h3));
+      return Long.valueOf(H3Plugin.H3.getResolution(h3));
     } catch (Exception e) {
       return null;
     }
@@ -33,7 +33,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.INTEGER)
   public static Long getBaseCellNumber(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return Long.valueOf(H3Plugin.h3.getBaseCellNumber(h3));
+      return Long.valueOf(H3Plugin.H3.getBaseCellNumber(h3));
     } catch (Exception e) {
       return null;
     }
@@ -45,7 +45,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.BIGINT)
   public static Long stringToH3(@SqlType(StandardTypes.VARCHAR) Slice h3) {
     try {
-      return H3Plugin.h3.stringToH3(h3.toStringUtf8());
+      return H3Plugin.H3.stringToH3(h3.toStringUtf8());
     } catch (Exception e) {
       return null;
     }
@@ -57,7 +57,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.VARCHAR)
   public static Slice h3ToString(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return Slices.utf8Slice(H3Plugin.h3.h3ToString(h3));
+      return Slices.utf8Slice(H3Plugin.H3.h3ToString(h3));
     } catch (Exception e) {
       return null;
     }
@@ -67,21 +67,21 @@ public final class InspectionFunctions {
   @Description("Returns true if given a valid H3 cell identifier")
   @SqlType(StandardTypes.BOOLEAN)
   public static boolean isValidCell(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.h3.isValidCell(h3);
+    return H3Plugin.H3.isValidCell(h3);
   }
 
   @ScalarFunction(value = "h3_is_res_class_iii")
   @Description("Returns true if the index is in resolution class III")
   @SqlType(StandardTypes.BOOLEAN)
   public static boolean isResClassIII(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.h3.isResClassIII(h3);
+    return H3Plugin.H3.isResClassIII(h3);
   }
 
   @ScalarFunction(value = "h3_is_pentagon")
   @Description("Returns true if the cell index is a pentagon")
   @SqlType(StandardTypes.BOOLEAN)
   public static boolean isPentagon(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.h3.isPentagon(h3);
+    return H3Plugin.H3.isPentagon(h3);
   }
 
   @ScalarFunction(value = "h3_get_icosahedron_faces")
@@ -90,7 +90,7 @@ public final class InspectionFunctions {
   @SqlType(H3Plugin.TYPE_ARRAY_INTEGER)
   public static Block getIcosahedronFaces(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      Collection<Integer> faces = H3Plugin.h3.getIcosahedronFaces(h3);
+      Collection<Integer> faces = H3Plugin.H3.getIcosahedronFaces(h3);
       BlockBuilder blockBuilder = INTEGER.createFixedSizeBlockBuilder(faces.size());
       for (Integer face : faces) {
         INTEGER.writeLong(blockBuilder, face);

@@ -1,12 +1,12 @@
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.foursquare.presto.h3.H3PluginTest.assertQueryResults;
-import static com.foursquare.presto.h3.H3PluginTest.createQueryRunner;
+import static io.shchoi.trino.h3.H3PluginTest.assertQueryResults;
+import static io.shchoi.trino.h3.H3PluginTest.createQueryRunner;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.facebook.presto.testing.QueryRunner;
-import com.google.common.collect.ImmutableList;
+import io.trino.testing.QueryRunner;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -24,8 +24,8 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_area_avg(0, 'km2'), h3_get_hexagon_area_avg(1, 'm2'), h3_get_hexagon_area_avg(2, 'km2'), h3_get_hexagon_area_avg(3, 'm2'), h3_get_hexagon_area_avg(4, 'm2'), h3_get_hexagon_area_avg(15, 'km2')",
-          ImmutableList.of(
-              ImmutableList.of(
+          List.of(
+              List.of(
                   4357449.416078383,
                   609788441794.1339,
                   86801.7803989972,
@@ -36,43 +36,41 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_area_avg(null, 'km2')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_area_avg(0, 'invalid')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_area_avg(-1, 'km2')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_area_avg(255, 'km2')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
   @Test
   public void testCellArea() {
     try (QueryRunner queryRunner = createQueryRunner()) {
+      // H3 4.3.2 returns slightly different precision compared to earlier versions
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_area(from_base('85283473fffffff', 16), 'km2'), h3_cell_area(from_base('85283473fffffff', 16), 'm2'), h3_cell_area(from_base('85283473fffffff', 16), 'rads2')",
-          ImmutableList.of(
-              ImmutableList.of(265.0925581282742, 2.6509255812827918E8, 0.000006531025010641534)));
+          List.of(List.of(265.09255812827394, 2.6509255812827393E8, 6.5310250106415255E-6)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_area(null, 'km2')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_area(0, 'invalid')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_cell_area(-1, 'km2')",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_cell_area(-1, 'km2')", List.of(Collections.singletonList(null)));
     }
   }
 
@@ -82,26 +80,26 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_edge_length_avg(0, 'km'), h3_get_hexagon_edge_length_avg(1, 'm'), h3_get_hexagon_edge_length_avg(2, 'km'), h3_get_hexagon_edge_length_avg(3, 'm'), h3_get_hexagon_edge_length_avg(4, 'km'), h3_get_hexagon_edge_length_avg(15, 'm')",
-          ImmutableList.of(
-              ImmutableList.of(
-                  1107.712591, 418676.0055, 158.2446558, 59810.85794, 22.6063794, 0.509713273)));
+          List.of(
+              List.of(
+                  1281.256011, 483056.8391, 182.5129565, 68979.22179, 26.07175968, 0.58416863)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_edge_length_avg(null, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_edge_length_avg(0, 'invalid')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_edge_length_avg(-1, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_hexagon_edge_length_avg(255, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -111,20 +109,18 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_edge_length(from_base('115283473fffffff', 16), 'km')",
-          ImmutableList.of(ImmutableList.of(10.294736086198531)));
+          List.of(List.of(10.294736086198531)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_edge_length(null, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_edge_length(0, 'invalid')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_edge_length(-1, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_edge_length(-1, 'km')", List.of(Collections.singletonList(null)));
     }
   }
 
@@ -134,16 +130,16 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_great_circle_distance(-10, 0, 10, 0, 'km')",
-          ImmutableList.of(ImmutableList.of(2223.9010395045884)));
+          List.of(List.of(2223.9010395045884)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_great_circle_distance(null, null, null, null, 'km')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_great_circle_distance(-10, 0, 10, 0, 'invalid')",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -153,20 +149,14 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_num_cells(0), h3_get_num_cells(15)",
-          ImmutableList.of(ImmutableList.of(122L, 569707381193162L)));
+          List.of(List.of(122L, 569707381193162L)));
 
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_num_cells(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_num_cells(null)", List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_num_cells(-10)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_num_cells(-10)", List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_num_cells(255)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_num_cells(255)", List.of(Collections.singletonList(null)));
     }
   }
 
@@ -176,9 +166,9 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_res0_cells()",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x8001fffffffffffL,
                       0x8003fffffffffffL,
                       0x8005fffffffffffL,
@@ -310,9 +300,9 @@ public class MiscellaneousFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_pentagons(0), h3_get_pentagons(15)",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x8009fffffffffffL,
                       0x801dfffffffffffL,
                       0x8031fffffffffffL,
@@ -325,7 +315,7 @@ public class MiscellaneousFunctionsTest {
                       0x80c3fffffffffffL,
                       0x80d7fffffffffffL,
                       0x80ebfffffffffffL),
-                  ImmutableList.of(
+                  List.of(
                       0x8f0800000000000L,
                       0x8f1c00000000000L,
                       0x8f3000000000000L,
@@ -340,17 +330,11 @@ public class MiscellaneousFunctionsTest {
                       0x8fea00000000000L))));
 
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_pentagons(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_pentagons(null)", List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_pentagons(-10)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_pentagons(-10)", List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_pentagons(255)",
-          ImmutableList.of(Collections.singletonList(null)));
+          queryRunner, "SELECT h3_get_pentagons(255)", List.of(Collections.singletonList(null)));
     }
   }
 }

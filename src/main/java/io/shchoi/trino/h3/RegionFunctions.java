@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.geospatial.serde.JtsGeometrySerde.deserialize;
-import static com.facebook.presto.geospatial.serde.JtsGeometrySerde.serialize;
-import static com.facebook.presto.geospatial.type.GeometryType.GEOMETRY_TYPE_NAME;
+import static io.trino.geospatial.serde.JtsGeometrySerde.deserialize;
+import static io.trino.geospatial.serde.JtsGeometrySerde.serialize;
+import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POLYGON;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
+import io.trino.spi.block.Block;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +61,7 @@ public final class RegionFunctions {
               .map(RegionFunctions::linearRingTolatLngList)
               .collect(Collectors.toList());
 
-      List<Long> cells = H3Plugin.h3.polygonToCells(polygon, holes, H3Plugin.longToInt(res));
+      List<Long> cells = H3Plugin.H3.polygonToCells(polygon, holes, H3Plugin.longToInt(res));
       return H3Plugin.longListToBlock(cells);
     } catch (Exception e) {
       return null;
@@ -81,7 +81,7 @@ public final class RegionFunctions {
   public static Slice cellsToMultiPolygon(@SqlType(H3Plugin.TYPE_ARRAY_BIGINT) Block h3Block) {
     try {
       List<Long> cells = H3Plugin.longBlockToList(h3Block);
-      List<List<List<LatLng>>> multiPolygon = H3Plugin.h3.cellsToMultiPolygon(cells, true);
+      List<List<List<LatLng>>> multiPolygon = H3Plugin.H3.cellsToMultiPolygon(cells, true);
 
       GeometryFactory geomFactory = new GeometryFactory();
 

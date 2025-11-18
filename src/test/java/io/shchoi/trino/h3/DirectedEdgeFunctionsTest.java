@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.foursquare.presto.h3.H3PluginTest.assertQueryResults;
-import static com.foursquare.presto.h3.H3PluginTest.createQueryRunner;
+import static io.shchoi.trino.h3.H3PluginTest.assertQueryResults;
+import static io.shchoi.trino.h3.H3PluginTest.createQueryRunner;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.facebook.presto.testing.QueryRunner;
-import com.google.common.collect.ImmutableList;
+import io.trino.testing.QueryRunner;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -43,29 +43,29 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16))",
-          ImmutableList.of(ImmutableList.of(true)));
+          List.of(List.of(true)));
       // Non-neighbors
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(from_base('85283473fffffff', 16), from_base('852836b7fffffff', 16))",
-          ImmutableList.of(ImmutableList.of(false)));
+          List.of(List.of(false)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(0, from_base('85283473fffffff', 16)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(null, from_base('85283473fffffff', 16)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(from_base('85283473fffffff', 16), null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_are_neighbor_cells(from_base('85283473fffffff', 16), -1) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -75,25 +75,25 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16))",
-          ImmutableList.of(ImmutableList.of(0x125283473fffffffL)));
+          List.of(List.of(0x125283473fffffffL)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_cells_to_directed_edge(0, from_base('85283473fffffff', 16)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cells_to_directed_edge(null, from_base('85283473fffffff', 16)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cells_to_directed_edge(from_base('85283473fffffff', 16), null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       // Non-neighboring cells return an error
       assertQueryResults(
           queryRunner,
           "SELECT h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('852836b7fffffff', 16)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -103,16 +103,16 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_origin(h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16)))",
-          ImmutableList.of(ImmutableList.of(0x85283473fffffffL)));
+          List.of(List.of(0x85283473fffffffL)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_origin(0)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_origin(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -122,16 +122,16 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_destination(h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16)))",
-          ImmutableList.of(ImmutableList.of(0x8528347bfffffffL)));
+          List.of(List.of(0x8528347bfffffffL)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_destination(0)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_get_directed_edge_destination(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -141,17 +141,16 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_cells(h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16)))",
-          ImmutableList.of(
-              ImmutableList.of(ImmutableList.of(0x85283473fffffffL, 0x8528347bfffffffL))));
+          List.of(List.of(List.of(0x85283473fffffffL, 0x8528347bfffffffL))));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_cells(0)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_cells(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -161,9 +160,9 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_origin_to_directed_edges(from_base('85283473fffffff', 16))",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x115283473fffffffL,
                       0x125283473fffffffL,
                       0x135283473fffffffL,
@@ -174,9 +173,9 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_origin_to_directed_edges(0)",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x1100000000000000L,
                       0x1200000000000000L,
                       0x1300000000000000L,
@@ -186,7 +185,7 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_origin_to_directed_edges(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -201,16 +200,16 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT ST_AsText(h3_directed_edge_to_boundary(h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16))))",
-          ImmutableList.of(ImmutableList.of(expectedLineString)));
+          List.of(List.of(expectedLineString)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_boundary(0)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_boundary(null)",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 }

@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.geospatial.type.GeometryType.GEOMETRY_TYPE_NAME;
+import static io.trino.geospatial.GeometryType.LINE_STRING;
+import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.geospatial.GeometryType;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import io.airlift.slice.Slice;
+import io.trino.spi.block.Block;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 
 /** Functions wrapping https://h3geo.org/docs/api/uniedge */
 public final class DirectedEdgeFunctions {
@@ -35,7 +35,7 @@ public final class DirectedEdgeFunctions {
   public static Boolean areNeighborCells(
       @SqlType(StandardTypes.BIGINT) long a, @SqlType(StandardTypes.BIGINT) long b) {
     try {
-      return H3Plugin.h3.areNeighborCells(a, b);
+      return H3Plugin.H3.areNeighborCells(a, b);
     } catch (Exception e) {
       return null;
     }
@@ -48,7 +48,7 @@ public final class DirectedEdgeFunctions {
   public static Long cellsToDirectedEdge(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.BIGINT) long destination) {
     try {
-      return H3Plugin.h3.cellsToDirectedEdge(origin, destination);
+      return H3Plugin.H3.cellsToDirectedEdge(origin, destination);
     } catch (Exception e) {
       return null;
     }
@@ -60,7 +60,7 @@ public final class DirectedEdgeFunctions {
   @SqlType(StandardTypes.BIGINT)
   public static Long getDirectedEdgeOrigin(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return H3Plugin.h3.getDirectedEdgeOrigin(h3);
+      return H3Plugin.H3.getDirectedEdgeOrigin(h3);
     } catch (Exception e) {
       return null;
     }
@@ -72,7 +72,7 @@ public final class DirectedEdgeFunctions {
   @SqlType(StandardTypes.BIGINT)
   public static Long getDirectedEdgeDestination(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return H3Plugin.h3.getDirectedEdgeDestination(h3);
+      return H3Plugin.H3.getDirectedEdgeDestination(h3);
     } catch (Exception e) {
       return null;
     }
@@ -84,7 +84,7 @@ public final class DirectedEdgeFunctions {
   @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
   public static Block directedEdgeToCells(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return H3Plugin.longListToBlock(H3Plugin.h3.directedEdgeToCells(h3));
+      return H3Plugin.longListToBlock(H3Plugin.H3.directedEdgeToCells(h3));
     } catch (Exception e) {
       return null;
     }
@@ -96,7 +96,7 @@ public final class DirectedEdgeFunctions {
   @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
   public static Block originToDirectedEdges(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return H3Plugin.longListToBlock(H3Plugin.h3.originToDirectedEdges(h3));
+      return H3Plugin.longListToBlock(H3Plugin.H3.originToDirectedEdges(h3));
     } catch (Exception e) {
       return null;
     }
@@ -108,8 +108,7 @@ public final class DirectedEdgeFunctions {
   @SqlType(GEOMETRY_TYPE_NAME)
   public static Slice directedEdgeToBoundary(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return H3Plugin.latLngListToGeometry(
-          H3Plugin.h3.directedEdgeToBoundary(h3), GeometryType.LINE_STRING);
+      return H3Plugin.latLngListToGeometry(H3Plugin.H3.directedEdgeToBoundary(h3), LINE_STRING);
     } catch (Exception e) {
       return null;
     }

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.foursquare.presto.h3.H3PluginTest.assertQueryResults;
-import static com.foursquare.presto.h3.H3PluginTest.createQueryRunner;
+import static io.shchoi.trino.h3.H3PluginTest.assertQueryResults;
+import static io.shchoi.trino.h3.H3PluginTest.createQueryRunner;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.facebook.presto.testing.QueryRunner;
-import com.google.common.collect.ImmutableList;
+import io.trino.testing.QueryRunner;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -39,24 +39,24 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_parent(from_base('85283473fffffff', 16), 4) hex",
-          ImmutableList.of(ImmutableList.of(0x8428347ffffffffL)));
+          List.of(List.of(0x8428347ffffffffL)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_parent(0, 4) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_parent(null, 4) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_parent(from_base('85283473fffffff', 16), null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_parent(from_base('85283473fffffff', 16), -1) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -66,9 +66,9 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_children(from_base('85283473fffffff', 16), 6) hex",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x862834707ffffffL,
                       0x86283470fffffffL,
                       0x862834717ffffffL,
@@ -80,19 +80,19 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_children(0, 4) hex",
-          ImmutableList.of(Collections.singletonList(Collections.emptyList())));
+          List.of(Collections.singletonList(Collections.emptyList())));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_children(null, 4) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_children(from_base('85283473fffffff', 16), null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_children(from_base('85283473fffffff', 16), -1) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -102,24 +102,24 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_center_child(from_base('85283473fffffff', 16), 6) hex",
-          ImmutableList.of(ImmutableList.of(0x862834707ffffffL)));
+          List.of(List.of(0x862834707ffffffL)));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_center_child(0, 4) hex",
-          ImmutableList.of(Collections.singletonList(0x40000000000000L)));
+          List.of(Collections.singletonList(0x40000000000000L)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_center_child(null, 4) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_center_child(from_base('85283473fffffff', 16), null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_center_child(from_base('85283473fffffff', 16), -1) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -129,20 +129,18 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_compact_cells(h3_cell_to_children(from_base('85283473fffffff', 16), 7)) hex",
-          ImmutableList.of(ImmutableList.of(ImmutableList.of(0x85283473fffffffL))));
+          List.of(List.of(List.of(0x85283473fffffffL))));
 
       assertQueryResults(
           queryRunner,
           "SELECT h3_compact_cells(repeat(from_base('85283473fffffff', 16), 100)) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_compact_cells(ARRAY []) hex",
-          ImmutableList.of(ImmutableList.of(ImmutableList.of())));
+          queryRunner, "SELECT h3_compact_cells(ARRAY []) hex", List.of(List.of(List.of())));
       assertQueryResults(
           queryRunner,
           "SELECT h3_compact_cells(null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -152,9 +150,9 @@ public class HierarchyFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_uncompact_cells(ARRAY [from_base('85283473fffffff', 16), from_base('85283477fffffff', 16)], 7) hex",
-          ImmutableList.of(
-              ImmutableList.of(
-                  ImmutableList.of(
+          List.of(
+              List.of(
+                  List.of(
                       0x872834700ffffffL,
                       0x872834701ffffffL,
                       0x872834702ffffffL,
@@ -255,25 +253,23 @@ public class HierarchyFunctionsTest {
                       0x872834776ffffffL))));
 
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_uncompact_cells(ARRAY [], 5) hex",
-          ImmutableList.of(ImmutableList.of(ImmutableList.of())));
+          queryRunner, "SELECT h3_uncompact_cells(ARRAY [], 5) hex", List.of(List.of(List.of())));
       assertQueryResults(
           queryRunner,
           "SELECT h3_uncompact_cells(null, 5) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_uncompact_cells(ARRAY [from_base('85283473fffffff', 16)], null) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_uncompact_cells(ARRAY [from_base('85283473fffffff', 16)], -1) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
           "SELECT h3_uncompact_cells(ARRAY [from_base('85283473fffffff', 16)], 16) hex",
-          ImmutableList.of(Collections.singletonList(null)));
+          List.of(Collections.singletonList(null)));
     }
   }
 }

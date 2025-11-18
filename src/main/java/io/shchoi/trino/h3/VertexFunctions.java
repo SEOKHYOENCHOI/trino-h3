@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.geospatial.type.GeometryType.GEOMETRY_TYPE_NAME;
+import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
+import io.trino.spi.block.Block;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.List;
 
 /** Wraps https://h3geo.org/docs/api/vertex */
@@ -36,7 +36,7 @@ public final class VertexFunctions {
   public static Long cellToVertex(
       @SqlType(StandardTypes.BIGINT) long cell, @SqlType(StandardTypes.INTEGER) long vertexNum) {
     try {
-      return H3Plugin.h3.cellToVertex(cell, H3Plugin.longToInt(vertexNum));
+      return H3Plugin.H3.cellToVertex(cell, H3Plugin.longToInt(vertexNum));
     } catch (Exception e) {
       return null;
     }
@@ -48,7 +48,7 @@ public final class VertexFunctions {
   @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
   public static Block cellToVertexes(@SqlType(StandardTypes.BIGINT) long cell) {
     try {
-      List<Long> vertexes = H3Plugin.h3.cellToVertexes(cell);
+      List<Long> vertexes = H3Plugin.H3.cellToVertexes(cell);
       return H3Plugin.longListToBlock(vertexes);
     } catch (Exception e) {
       return null;
@@ -61,7 +61,7 @@ public final class VertexFunctions {
   @SqlType(GEOMETRY_TYPE_NAME)
   public static Slice vertexToLatLng(@SqlType(StandardTypes.BIGINT) long vertex) {
     try {
-      LatLng latLng = H3Plugin.h3.vertexToLatLng(vertex);
+      LatLng latLng = H3Plugin.H3.vertexToLatLng(vertex);
       return H3Plugin.latLngToGeometry(latLng);
     } catch (Exception e) {
       return null;
@@ -72,6 +72,6 @@ public final class VertexFunctions {
   @Description("Returns true if this is a valid vertex index")
   @SqlType(StandardTypes.BOOLEAN)
   public static boolean isValidVertex(@SqlType(StandardTypes.BIGINT) long vertex) {
-    return H3Plugin.h3.isValidVertex(vertex);
+    return H3Plugin.H3.isValidVertex(vertex);
   }
 }

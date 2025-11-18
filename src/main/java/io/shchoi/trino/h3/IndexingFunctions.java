@@ -1,17 +1,17 @@
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.geospatial.serde.JtsGeometrySerde.deserialize;
-import static com.facebook.presto.geospatial.type.GeometryType.GEOMETRY_TYPE_NAME;
+import static io.trino.geospatial.GeometryType.POLYGON;
+import static io.trino.geospatial.serde.JtsGeometrySerde.deserialize;
+import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POINT;
 
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.geospatial.GeometryType;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.List;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
@@ -28,7 +28,7 @@ public final class IndexingFunctions {
       @SqlType(StandardTypes.DOUBLE) double lng,
       @SqlType(StandardTypes.INTEGER) long res) {
     try {
-      return H3Plugin.h3.latLngToCell(lat, lng, H3Plugin.longToInt(res));
+      return H3Plugin.H3.latLngToCell(lat, lng, H3Plugin.longToInt(res));
     } catch (Exception e) {
       return null;
     }
@@ -48,7 +48,7 @@ public final class IndexingFunctions {
       }
       Point pointGeom = (Point) pointGeomUntyped;
 
-      return H3Plugin.h3.latLngToCell(pointGeom.getY(), pointGeom.getX(), H3Plugin.longToInt(res));
+      return H3Plugin.H3.latLngToCell(pointGeom.getY(), pointGeom.getX(), H3Plugin.longToInt(res));
     } catch (Exception e) {
       return null;
     }
@@ -64,7 +64,7 @@ public final class IndexingFunctions {
   @SqlType(GEOMETRY_TYPE_NAME)
   public static Slice cellToLatLng(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      LatLng latLng = H3Plugin.h3.cellToLatLng(h3);
+      LatLng latLng = H3Plugin.H3.cellToLatLng(h3);
       return H3Plugin.latLngToGeometry(latLng);
     } catch (Exception e) {
       return null;
@@ -81,10 +81,10 @@ public final class IndexingFunctions {
   @SqlType(GEOMETRY_TYPE_NAME)
   public static Slice cellToBoundary(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      List<LatLng> boundary = H3Plugin.h3.cellToBoundary(h3);
+      List<LatLng> boundary = H3Plugin.H3.cellToBoundary(h3);
       // Duplicate the first point at the end to form a closed ring
       boundary.add(boundary.get(0));
-      return H3Plugin.latLngListToGeometry(boundary, GeometryType.POLYGON);
+      return H3Plugin.latLngListToGeometry(boundary, POLYGON);
     } catch (Exception e) {
       return null;
     }

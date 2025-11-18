@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.testing.TestingSession.testSessionBuilder;
-import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.trino.testing.TestingSession.testSessionBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.facebook.presto.Session;
-import com.facebook.presto.testing.MaterializedResult;
-import com.facebook.presto.testing.MaterializedRow;
-import com.facebook.presto.testing.QueryRunner;
-import com.facebook.presto.tests.DistributedQueryRunner;
-import com.google.common.collect.ImmutableMap;
+import io.trino.Session;
+import io.trino.plugin.geospatial.GeoPlugin;
+import io.trino.testing.DistributedQueryRunner;
+import io.trino.testing.MaterializedResult;
+import io.trino.testing.MaterializedRow;
+import io.trino.testing.QueryRunner;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -56,7 +55,7 @@ public class H3PluginTest {
   public static <T> void assertQueryResults(
       QueryRunner queryRunner, String sql, List<List<T>> expected) {
     MaterializedResult results = queryRunner.execute(sql);
-    List<MaterializedRow> rows = results.getMaterializedRows().stream().collect(toImmutableList());
+    List<MaterializedRow> rows = results.getMaterializedRows().stream().toList();
     assertEquals(expected.size(), rows.size(), String.format("%s: expected number of rows", sql));
     for (int i = 0; i < expected.size(); i++) {
       assertEquals(
@@ -123,7 +122,7 @@ public class H3PluginTest {
   public static DistributedQueryRunner createQueryRunner() {
     try {
       Session session = testSessionBuilder().build();
-      Map<String, String> properties = ImmutableMap.of();
+      Map<String, String> properties = Map.of();
       DistributedQueryRunner queryRunner =
           DistributedQueryRunner.builder(session)
               .setNodeCount(1)
@@ -131,6 +130,7 @@ public class H3PluginTest {
               .build();
 
       try {
+        queryRunner.installPlugin(new GeoPlugin());
         queryRunner.installPlugin(new H3Plugin());
         return queryRunner;
       } catch (Exception e) {

@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
-import com.google.common.collect.ImmutableList;
 import com.uber.h3core.util.CoordIJ;
+import io.trino.spi.block.Block;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,7 +34,7 @@ public final class TraversalFunctions {
   public static Block gridDisk(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.INTEGER) long k) {
     try {
-      List<Long> disk = H3Plugin.h3.gridDisk(origin, H3Plugin.longToInt(k));
+      List<Long> disk = H3Plugin.H3.gridDisk(origin, H3Plugin.longToInt(k));
       return H3Plugin.longListToBlock(disk);
     } catch (Exception e) {
       return null;
@@ -53,7 +52,7 @@ public final class TraversalFunctions {
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.INTEGER) long k) {
     try {
       List<Long> disk =
-          H3Plugin.h3.gridDiskUnsafe(origin, H3Plugin.longToInt(k)).stream()
+          H3Plugin.H3.gridDiskUnsafe(origin, H3Plugin.longToInt(k)).stream()
               .flatMap(List::stream)
               .collect(Collectors.toList());
       return H3Plugin.longListToBlock(disk);
@@ -73,7 +72,7 @@ public final class TraversalFunctions {
   public static Block gridRingUnsafe(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.INTEGER) long k) {
     try {
-      List<Long> disk = H3Plugin.h3.gridRingUnsafe(origin, H3Plugin.longToInt(k));
+      List<Long> disk = H3Plugin.H3.gridRingUnsafe(origin, H3Plugin.longToInt(k));
       return H3Plugin.longListToBlock(disk);
     } catch (Exception e) {
       return null;
@@ -87,7 +86,7 @@ public final class TraversalFunctions {
   public static Block gridPathCells(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.BIGINT) long destination) {
     try {
-      List<Long> path = H3Plugin.h3.gridPathCells(origin, destination);
+      List<Long> path = H3Plugin.H3.gridPathCells(origin, destination);
       return H3Plugin.longListToBlock(path);
     } catch (Exception e) {
       return null;
@@ -101,7 +100,7 @@ public final class TraversalFunctions {
   public static Long gridDistance(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.BIGINT) long destination) {
     try {
-      return H3Plugin.h3.gridDistance(origin, destination);
+      return H3Plugin.H3.gridDistance(origin, destination);
     } catch (Exception e) {
       return null;
     }
@@ -115,8 +114,8 @@ public final class TraversalFunctions {
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.BIGINT) long cell) {
     try {
       // TODO: Return as ROW(i INTEGER, j INTEGER)
-      CoordIJ ij = H3Plugin.h3.cellToLocalIj(origin, cell);
-      return H3Plugin.intListToBlock(ImmutableList.of(ij.i, ij.j));
+      CoordIJ ij = H3Plugin.H3.cellToLocalIj(origin, cell);
+      return H3Plugin.intListToBlock(List.of(ij.i, ij.j));
     } catch (Exception e) {
       return null;
     }
@@ -133,7 +132,7 @@ public final class TraversalFunctions {
     try {
       // TODO: Accept as ROW(i INTEGER, j INTEGER)
       CoordIJ ij = new CoordIJ(H3Plugin.longToInt(i), H3Plugin.longToInt(j));
-      return H3Plugin.h3.localIjToCell(origin, ij);
+      return H3Plugin.H3.localIjToCell(origin, ij);
     } catch (Exception e) {
       return null;
     }

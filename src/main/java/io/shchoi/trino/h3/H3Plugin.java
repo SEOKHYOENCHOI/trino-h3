@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import static com.facebook.presto.common.type.BigintType.BIGINT;
-import static com.facebook.presto.common.type.IntegerType.INTEGER;
-import static com.facebook.presto.geospatial.serde.JtsGeometrySerde.serialize;
+import static io.trino.geospatial.GeometryType.LINE_STRING;
+import static io.trino.geospatial.GeometryType.POLYGON;
+import static io.trino.geospatial.serde.JtsGeometrySerde.serialize;
+import static io.trino.spi.type.BigintType.BIGINT;
+import static io.trino.spi.type.IntegerType.INTEGER;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.block.BlockBuilder;
-import com.facebook.presto.geospatial.GeometryType;
-import com.facebook.presto.spi.Plugin;
-import com.google.common.collect.ImmutableSet;
 import com.uber.h3core.H3Core;
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
+import io.trino.geospatial.GeometryType;
+import io.trino.spi.Plugin;
+import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,11 +40,11 @@ public class H3Plugin implements Plugin {
   static final String TYPE_ARRAY_BIGINT = "ARRAY(BIGINT)";
   static final String TYPE_ARRAY_INTEGER = "ARRAY(INTEGER)";
 
-  static final H3Core h3;
+  static final H3Core H3;
 
   static {
     try {
-      h3 = H3Core.newInstance();
+      H3 = H3Core.newInstance();
     } catch (IOException e) {
       throw new RuntimeException("H3 setup failed", e);
     }
@@ -64,7 +65,7 @@ public class H3Plugin implements Plugin {
   static List<Long> longBlockToList(Block block) {
     List<Long> list = new ArrayList<>(block.getPositionCount());
     for (int i = 0; i < block.getPositionCount(); i++) {
-      list.add(block.getLong(i));
+      list.add(BIGINT.getLong(block, i));
     }
     return list;
   }
@@ -77,16 +78,16 @@ public class H3Plugin implements Plugin {
     return blockBuilder.build();
   }
 
-  static Slice latLngListToGeometry(List<LatLng> list, GeometryType type) {
+  static Slice latLngListToGeometry(List<LatLng> list, GeometryType geometryType) {
     Coordinate[] coordinates =
         list.stream().map(ll -> new Coordinate(ll.lng, ll.lat)).toArray(Coordinate[]::new);
     GeometryFactory geomFactory = new GeometryFactory();
-    if (GeometryType.LINE_STRING.equals(type)) {
+    if (LINE_STRING.equals(geometryType)) {
       return serialize(geomFactory.createLineString(coordinates));
-    } else if (GeometryType.POLYGON.equals(type)) {
+    } else if (POLYGON.equals(geometryType)) {
       return serialize(geomFactory.createPolygon(coordinates));
     } else {
-      throw new IllegalArgumentException("Cannot serialize with GeometryType " + type);
+      throw new IllegalArgumentException("Cannot serialize with GeometryType " + geometryType);
     }
   }
 
@@ -106,16 +107,14 @@ public class H3Plugin implements Plugin {
 
   @Override
   public Set<Class<?>> getFunctions() {
-    return ImmutableSet.<Class<?>>builder()
-        .add(
-            IndexingFunctions.class,
-            InspectionFunctions.class,
-            HierarchyFunctions.class,
-            TraversalFunctions.class,
-            RegionFunctions.class,
-            DirectedEdgeFunctions.class,
-            VertexFunctions.class,
-            MiscellaneousFunctions.class)
-        .build();
+    return Set.of(
+        IndexingFunctions.class,
+        InspectionFunctions.class,
+        HierarchyFunctions.class,
+        TraversalFunctions.class,
+        RegionFunctions.class,
+        DirectedEdgeFunctions.class,
+        VertexFunctions.class,
+        MiscellaneousFunctions.class);
   }
 }

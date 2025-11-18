@@ -1,15 +1,15 @@
-package com.foursquare.presto.h3;
+package io.shchoi.trino.h3;
 
-import com.facebook.presto.common.block.Block;
-import com.facebook.presto.common.type.StandardTypes;
-import com.facebook.presto.spi.function.Description;
-import com.facebook.presto.spi.function.ScalarFunction;
-import com.facebook.presto.spi.function.SqlNullable;
-import com.facebook.presto.spi.function.SqlType;
 import com.uber.h3core.AreaUnit;
 import com.uber.h3core.LengthUnit;
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
+import io.trino.spi.block.Block;
+import io.trino.spi.function.Description;
+import io.trino.spi.function.ScalarFunction;
+import io.trino.spi.function.SqlNullable;
+import io.trino.spi.function.SqlType;
+import io.trino.spi.type.StandardTypes;
 import java.util.ArrayList;
 
 /** Wraps https://h3geo.org/docs/api/misc */
@@ -21,7 +21,7 @@ public final class MiscellaneousFunctions {
   public static Double getHexagonAreaAvg(
       @SqlType(StandardTypes.INTEGER) long res, @SqlType(StandardTypes.VARCHAR) Slice unit) {
     try {
-      return H3Plugin.h3.getHexagonAreaAvg(
+      return H3Plugin.H3.getHexagonAreaAvg(
           H3Plugin.longToInt(res), AreaUnit.valueOf(unit.toStringUtf8()));
     } catch (Exception e) {
       return null;
@@ -35,7 +35,7 @@ public final class MiscellaneousFunctions {
   public static Double cellArea(
       @SqlType(StandardTypes.BIGINT) long cell, @SqlType(StandardTypes.VARCHAR) Slice unit) {
     try {
-      return H3Plugin.h3.cellArea(cell, AreaUnit.valueOf(unit.toStringUtf8()));
+      return H3Plugin.H3.cellArea(cell, AreaUnit.valueOf(unit.toStringUtf8()));
     } catch (Exception e) {
       return null;
     }
@@ -48,7 +48,7 @@ public final class MiscellaneousFunctions {
   public static Double getHexagonEdgeLengthAvg(
       @SqlType(StandardTypes.INTEGER) long res, @SqlType(StandardTypes.VARCHAR) Slice unit) {
     try {
-      return H3Plugin.h3.getHexagonEdgeLengthAvg(
+      return H3Plugin.H3.getHexagonEdgeLengthAvg(
           H3Plugin.longToInt(res), LengthUnit.valueOf(unit.toStringUtf8()));
     } catch (Exception e) {
       return null;
@@ -62,7 +62,7 @@ public final class MiscellaneousFunctions {
   public static Double edgeLength(
       @SqlType(StandardTypes.BIGINT) long edge, @SqlType(StandardTypes.VARCHAR) Slice unit) {
     try {
-      return H3Plugin.h3.edgeLength(edge, LengthUnit.valueOf(unit.toStringUtf8()));
+      return H3Plugin.H3.edgeLength(edge, LengthUnit.valueOf(unit.toStringUtf8()));
     } catch (Exception e) {
       return null;
     }
@@ -80,7 +80,7 @@ public final class MiscellaneousFunctions {
       @SqlType(StandardTypes.DOUBLE) double lng2,
       @SqlType(StandardTypes.VARCHAR) Slice unit) {
     try {
-      return H3Plugin.h3.greatCircleDistance(
+      return H3Plugin.H3.greatCircleDistance(
           new LatLng(lat1, lng1), new LatLng(lat2, lng2), LengthUnit.valueOf(unit.toStringUtf8()));
     } catch (Exception e) {
       return null;
@@ -93,7 +93,7 @@ public final class MiscellaneousFunctions {
   @SqlType(StandardTypes.BIGINT)
   public static Long getNumCells(@SqlType(StandardTypes.INTEGER) long res) {
     try {
-      return H3Plugin.h3.getNumCells(H3Plugin.longToInt(res));
+      return H3Plugin.H3.getNumCells(H3Plugin.longToInt(res));
     } catch (Exception e) {
       return null;
     }
@@ -103,7 +103,7 @@ public final class MiscellaneousFunctions {
   @Description("Get all resolution 0 cells")
   @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
   public static Block getRes0Cells() {
-    return H3Plugin.longListToBlock(new ArrayList<>(H3Plugin.h3.getRes0Cells()));
+    return H3Plugin.longListToBlock(new ArrayList<>(H3Plugin.H3.getRes0Cells()));
   }
 
   @ScalarFunction(value = "h3_get_pentagons")
@@ -113,7 +113,7 @@ public final class MiscellaneousFunctions {
   public static Block getPentagons(@SqlType(StandardTypes.INTEGER) long res) {
     try {
       return H3Plugin.longListToBlock(
-          new ArrayList<>(H3Plugin.h3.getPentagons(H3Plugin.longToInt(res))));
+          new ArrayList<>(H3Plugin.H3.getPentagons(H3Plugin.longToInt(res))));
     } catch (Exception e) {
       return null;
     }
