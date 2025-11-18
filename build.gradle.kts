@@ -1,0 +1,185 @@
+plugins {
+    java
+    id("com.gradleup.shadow") version "8.3.5"
+    id("com.diffplug.spotless") version "6.25.0"
+    `maven-publish`
+}
+
+// Read versions from gradle.properties
+val trinoVersion: String by project
+val h3Version: String by project
+val jtsVersion: String by project
+val sliceVersion: String by project
+val junitVersion: String by project
+val assertjVersion: String by project
+val googleJavaFormatVersion: String by project
+
+group = project.property("group") as String
+version = project.property("version") as String
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(21))
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // H3 Core Library
+    implementation("com.uber:h3:$h3Version")
+
+    // JTS Core for geometric operations
+    implementation("org.locationtech.jts:jts-core:$jtsVersion")
+
+    // Trino SPI Dependencies (provided) - Version 436 (first JDK 21 support)
+    compileOnly("io.trino:trino-spi:$trinoVersion")
+    compileOnly("io.trino:trino-main:$trinoVersion")
+    compileOnly("io.trino:trino-geospatial:$trinoVersion")
+    compileOnly("io.trino:trino-plugin-toolkit:$trinoVersion")
+    compileOnly("io.airlift:slice:$sliceVersion")
+
+    // Annotation Processing
+    annotationProcessor("io.trino:trino-spi:$trinoVersion")
+
+    // Test Dependencies
+    testImplementation("io.trino:trino-testing:$trinoVersion")
+    testImplementation("io.trino:trino-geospatial:$trinoVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
+    testImplementation("org.assertj:assertj-core:$assertjVersion")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+// Force upgrade vulnerable transitive dependencies
+// These overrides apply only to test scope since compileOnly dependencies
+// are provided by Trino server at runtime
+configurations.all {
+    resolutionStrategy {
+        force(
+            // Fix CVE-2024-36114 (aircompressor 0.25 -> 0.27)
+            "io.airlift:aircompressor:0.27",
+            // Fix CVE-2025-11226, CVE-2024-12798, CVE-2024-12801 (logback-core 1.4.8 -> 1.5.16)
+            "ch.qos.logback:logback-core:1.5.16",
+            "ch.qos.logback:logback-classic:1.5.16",
+            // Fix CVE-2024-57699 (json-smart 2.5.0 -> 2.5.1)
+            "net.minidev:json-smart:2.5.1",
+            // Fix CVE-2024-22201 and others (jetty 11.0.17 -> 11.0.24)
+            "org.eclipse.jetty:jetty-server:11.0.24",
+            "org.eclipse.jetty:jetty-http:11.0.24",
+            "org.eclipse.jetty:jetty-io:11.0.24",
+            "org.eclipse.jetty:jetty-util:11.0.24",
+            "org.eclipse.jetty.http2:http2-common:11.0.24",
+            // Fix CVE-2024-25710, CVE-2024-26308 (commons-compress 1.24.0 -> 1.27.1)
+            "org.apache.commons:commons-compress:1.27.1",
+            // Fix CVE-2024-29857 and others (bcprov 1.76 -> 1.79)
+            "org.bouncycastle:bcprov-jdk18on:1.79"
+        )
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+}
+
+tasks.shadowJar {
+    archiveClassifier.set("")
+    archiveBaseName.set("trino-h3")
+
+    // Relocate dependencies to avoid conflicts
+    relocate("org.locationtech.jts", "io.shchoi.trino.h3.shaded.org.locationtech.jts")
+    relocate("com.uber.h3core", "io.shchoi.trino.h3.shaded.com.uber.h3core")
+
+    // Exclude signatures and other metadata
+    exclude("META-INF/*.SF")
+    exclude("META-INF/*.DSA")
+    exclude("META-INF/*.RSA")
+
+    // Keep only necessary files
+    minimize {
+        exclude(dependency("com.uber:h3:.*"))
+        exclude(dependency("org.locationtech.jts:jts-core:.*"))
+    }
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
+// Spotless configuration for code formatting
+spotless {
+    java {
+        googleJavaFormat(googleJavaFormatVersion)
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+
+        // Custom formatting rules
+        indentWithSpaces(2)
+
+        target("src/**/*.java")
+        targetExclude("build/**")
+    }
+}
+
+// Publishing configuration
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            pom {
+                name.set("trino-h3")
+                description.set("Trino plugin for H3, a hierarchical hexagonal geospatial indexing system.")
+                url.set("https://github.com/SEOKHYOENCHOI/trino-h3")
+
+                licenses {
+                    license {
+                        name.set("Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
+
+                developers {
+                    developer {
+                        id.set("shchoi")
+                        name.set("SEOKHYOEN CHOI")
+                        email.set("lkamna12@gmail.com")
+                    }
+                }
+
+                scm {
+                    connection.set("scm:git:git://github.com/SEOKHYOENCHOI/trino-h3.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/SEOKHYOENCHOI/trino-h3.git")
+                    url.set("https://github.com/SEOKHYOENCHOI/trino-h3/tree/main")
+                }
+            }
+        }
+    }
+}
+
+// Task to display project information
+tasks.register("projectInfo") {
+    doLast {
+        println("Project: ${project.name}")
+        println("Group: ${project.group}")
+        println("Version: ${project.version}")
+        println("Java Version: ${java.sourceCompatibility}")
+    }
+}
+
+// Task to clean generated files
+tasks.clean {
+    delete("out")
+    delete(".gradle")
+}

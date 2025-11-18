@@ -7,10 +7,11 @@
 .project
 .settings/
 
-# Build artifacts
-target/
-src/main/c/h3-java/src/com_uber_h3core_NativeMethods.h
-dependency-reduced-pom.xml
+# Build artifacts (Gradle)
+.gradle/
+build/
+out/
+bin/
 
 src/main/resources/*h3*
 src/main/resources/darwin-*
@@ -18,13 +19,9 @@ src/main/resources/android-*
 src/main/resources/linux-*
 src/main/resources/windows-*
 
-# Release
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-
 .vscode/
 
 .DS_Store
+
+# Claude Code documentation (local development only)
+CLAUDE.md
