@@ -51,7 +51,7 @@ public class H3Plugin implements Plugin {
   }
 
   /**
-   * Presto passes integer parameters in as `long`s in Java. These need to be cast down to `int` for
+   * Trino passes integer parameters in as `long`s in Java. These need to be cast down to `int` for
    * H3 functions. Throws if out of range.
    */
   static int longToInt(long l) {
