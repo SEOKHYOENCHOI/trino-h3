@@ -124,6 +124,91 @@ public class HierarchyFunctionsTest {
   }
 
   @Test
+  public void testCellToChildrenSize() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // res 5 -> res 6 (7 children)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_children_size(from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(7L)));
+
+      // res 5 -> res 7 (49 children)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_children_size(from_base('85283473fffffff', 16), 7)",
+          List.of(List.of(49L)));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_children_size(null, 6)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_children_size(from_base('85283473fffffff', 16), null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_children_size(from_base('85283473fffffff', 16), -1)",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
+  public void testCellToChildPos() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Get child position
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), 5)",
+          List.of(List.of(0L)));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(null, 5)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), -1)",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
+  public void testChildPosToCell() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Get child at position 0
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(0, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x862834707ffffffL)));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(null, from_base('85283473fffffff', 16), 6)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(0, null, 6)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(0, from_base('85283473fffffff', 16), null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(0, from_base('85283473fffffff', 16), -1)",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
   public void testCompactCells() {
     try (QueryRunner queryRunner = createQueryRunner()) {
       assertQueryResults(

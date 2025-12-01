@@ -70,6 +70,36 @@ public class DirectedEdgeFunctionsTest {
   }
 
   @Test
+  public void testIsValidDirectedEdge() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Valid directed edge
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_is_valid_directed_edge(h3_cells_to_directed_edge(from_base('85283473fffffff', 16), from_base('8528347bfffffff', 16)))",
+          List.of(List.of(true)));
+
+      // Invalid - regular cell index (not a directed edge)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_is_valid_directed_edge(from_base('85283473fffffff', 16))",
+          List.of(List.of(false)));
+
+      // Invalid - 0
+      assertQueryResults(
+          queryRunner, "SELECT h3_is_valid_directed_edge(0)", List.of(List.of(false)));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_is_valid_directed_edge(null)",
+          List.of(Collections.singletonList(null)));
+
+      assertQueryResults(
+          queryRunner, "SELECT h3_is_valid_directed_edge(-1)", List.of(List.of(false)));
+    }
+  }
+
+  @Test
   public void testCellsToDirectedEdge() {
     try (QueryRunner queryRunner = createQueryRunner()) {
       assertQueryResults(

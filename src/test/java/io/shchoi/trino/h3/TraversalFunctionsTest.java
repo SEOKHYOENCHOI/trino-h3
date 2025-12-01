@@ -80,6 +80,47 @@ public class TraversalFunctionsTest {
   }
 
   @Test
+  public void testGridDiskDistances() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Test k=0 (single cell)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_disk_distances(from_base('85283473fffffff', 16), 0)",
+          List.of(List.of(List.of(List.of(0x85283473fffffffL)))));
+
+      // Test k=1 (origin + 1 ring)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_disk_distances(from_base('85283473fffffff', 16), 1)",
+          List.of(
+              List.of(
+                  List.of(
+                      List.of(0x85283473fffffffL),
+                      List.of(
+                          0x85283447fffffffL,
+                          0x8528347bfffffffL,
+                          0x85283463fffffffL,
+                          0x85283477fffffffL,
+                          0x8528340ffffffffL,
+                          0x8528340bfffffffL)))));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_disk_distances(null, 1)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_disk_distances(from_base('85283473fffffff', 16), null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_disk_distances(from_base('85283473fffffff', 16), -1)",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
   public void testGridDiskUnsafe() {
     try (QueryRunner queryRunner = createQueryRunner()) {
       assertQueryResults(
@@ -129,6 +170,43 @@ public class TraversalFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_grid_disk_unsafe(from_base('85283473fffffff', 16), -1) hex",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
+  public void testGridRing() {
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Test k=0 (origin cell)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_ring(from_base('85283473fffffff', 16), 0)",
+          List.of(List.of(List.of(0x85283473fffffffL))));
+
+      // Test k=1 (first ring)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_ring(from_base('85283473fffffff', 16), 1)",
+          List.of(
+              List.of(
+                  List.of(
+                      0x8528340bfffffffL,
+                      0x85283447fffffffL,
+                      0x8528347bfffffffL,
+                      0x85283463fffffffL,
+                      0x85283477fffffffL,
+                      0x8528340ffffffffL))));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner, "SELECT h3_grid_ring(null, 1)", List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_ring(from_base('85283473fffffff', 16), null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_grid_ring(from_base('85283473fffffff', 16), -1)",
           List.of(Collections.singletonList(null)));
     }
   }
@@ -243,10 +321,11 @@ public class TraversalFunctionsTest {
   @Test
   public void testCellToLocalIj() {
     try (QueryRunner queryRunner = createQueryRunner()) {
+      // Test ROW type return - access fields using .i and .j
       assertQueryResults(
           queryRunner,
-          "SELECT h3_cell_to_local_ij(from_base('85283473fffffff', 16), from_base('8528342ffffffff', 16)) hex",
-          List.of(List.of(List.of(24, 12))));
+          "SELECT r.i, r.j FROM (SELECT h3_cell_to_local_ij(from_base('85283473fffffff', 16), from_base('8528342ffffffff', 16)) AS r)",
+          List.of(List.of(24, 12)));
 
       assertQueryResults(
           queryRunner,
@@ -270,30 +349,32 @@ public class TraversalFunctionsTest {
   @Test
   public void testLocalIjToCell() {
     try (QueryRunner queryRunner = createQueryRunner()) {
+      // Test with ROW type - using CAST to match the expected signature
       assertQueryResults(
           queryRunner,
-          "SELECT h3_local_ij_to_cell(from_base('85283473fffffff', 16), 0, 0) hex",
+          "SELECT h3_local_ij_to_cell(from_base('85283473fffffff', 16), CAST(ROW(0, 0) AS ROW(i INTEGER, j INTEGER))) hex",
           List.of(List.of(0x85280003fffffffL)));
 
+      // Test with invalid coordinates
       assertQueryResults(
           queryRunner,
-          "SELECT h3_local_ij_to_cell(from_base('85283473fffffff', 16), 1000000000, 0) hex",
+          "SELECT h3_local_ij_to_cell(from_base('85283473fffffff', 16), CAST(ROW(1000000000, 0) AS ROW(i INTEGER, j INTEGER))) hex",
+          List.of(Collections.singletonList(null)));
+
+      // Test chaining with h3_cell_to_local_ij
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_local_ij_to_cell(from_base('85283473fffffff', 16), h3_cell_to_local_ij(from_base('85283473fffffff', 16), from_base('8528342ffffffff', 16))) hex",
+          List.of(List.of(0x8528342ffffffffL)));
+
+      // Null tests
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_local_ij_to_cell(null, CAST(ROW(0, 0) AS ROW(i INTEGER, j INTEGER))) hex",
           List.of(Collections.singletonList(null)));
       assertQueryResults(
           queryRunner,
-          "SELECT h3_local_ij_to_cell(null, 0, 0) hex",
-          List.of(Collections.singletonList(null)));
-      assertQueryResults(
-          queryRunner,
-          "SELECT h3_local_ij_to_cell(from_base('8528342ffffffff', 16), null, 0) hex",
-          List.of(Collections.singletonList(null)));
-      assertQueryResults(
-          queryRunner,
-          "SELECT h3_local_ij_to_cell(from_base('8528342ffffffff', 16), 0, null) hex",
-          List.of(Collections.singletonList(null)));
-      assertQueryResults(
-          queryRunner,
-          "SELECT h3_local_ij_to_cell(from_base('8528342ffffffff', 16), null, null) hex",
+          "SELECT h3_local_ij_to_cell(from_base('8528342ffffffff', 16), null) hex",
           List.of(Collections.singletonList(null)));
     }
   }

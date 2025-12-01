@@ -15,14 +15,23 @@
  */
 package io.shchoi.trino.h3;
 
+import static io.trino.spi.type.BigintType.BIGINT;
+import static io.trino.spi.type.IntegerType.INTEGER;
+
 import com.uber.h3core.util.CoordIJ;
+import io.trino.spi.block.ArrayBlock;
 import io.trino.spi.block.Block;
+import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.block.RowValueBuilder;
+import io.trino.spi.block.SqlRow;
 import io.trino.spi.function.Description;
 import io.trino.spi.function.ScalarFunction;
 import io.trino.spi.function.SqlNullable;
 import io.trino.spi.function.SqlType;
+import io.trino.spi.type.RowType;
 import io.trino.spi.type.StandardTypes;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /** Wraps https://h3geo.org/docs/api/traversal */
@@ -41,7 +50,40 @@ public final class TraversalFunctions {
     }
   }
 
-  // TODO: gridDiskDistances
+  @ScalarFunction(value = "h3_grid_disk_distances")
+  @Description("Finds all nearby cells in a disk around the origin, grouped by distance")
+  @SqlNullable
+  @SqlType("ARRAY(ARRAY(BIGINT))")
+  public static Block gridDiskDistances(
+      @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.INTEGER) long k) {
+    try {
+      List<List<Long>> disksByDistance =
+          H3Plugin.H3.gridDiskDistances(origin, H3Plugin.longToInt(k));
+
+      // Build all inner arrays and concatenate their elements
+      int totalElements = disksByDistance.stream().mapToInt(List::size).sum();
+      BlockBuilder allElementsBuilder = BIGINT.createBlockBuilder(null, totalElements);
+      int[] innerOffsets = new int[disksByDistance.size() + 1];
+      innerOffsets[0] = 0;
+
+      int idx = 0;
+      for (List<Long> distanceGroup : disksByDistance) {
+        for (Long cell : distanceGroup) {
+          BIGINT.writeLong(allElementsBuilder, cell);
+        }
+        innerOffsets[idx + 1] = innerOffsets[idx] + distanceGroup.size();
+        idx++;
+      }
+
+      // Create ArrayBlock representing ARRAY(ARRAY(BIGINT))
+      // The scalar function returns one value - the outer array containing inner arrays
+      Block allElements = allElementsBuilder.build();
+      return ArrayBlock.fromElementBlock(
+          disksByDistance.size(), Optional.empty(), innerOffsets, allElements);
+    } catch (Exception e) {
+      return null;
+    }
+  }
 
   @ScalarFunction(value = "h3_grid_disk_unsafe")
   @Description(
@@ -61,9 +103,6 @@ public final class TraversalFunctions {
     }
   }
 
-  // TODO: gridDiskDistancesUnsafe
-  // TODO: gridDiskDistancesSafe
-
   @ScalarFunction(value = "h3_grid_ring_unsafe")
   @Description(
       "Efficiently finds nearby cells in a ring of distance k around the origin, but will return null if a pentagon is encountered")
@@ -74,6 +113,20 @@ public final class TraversalFunctions {
     try {
       List<Long> disk = H3Plugin.H3.gridRingUnsafe(origin, H3Plugin.longToInt(k));
       return H3Plugin.longListToBlock(disk);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @ScalarFunction(value = "h3_grid_ring")
+  @Description("Finds cells in a ring of distance k around the origin")
+  @SqlNullable
+  @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
+  public static Block gridRing(
+      @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.INTEGER) long k) {
+    try {
+      List<Long> ring = H3Plugin.H3.gridRing(origin, H3Plugin.longToInt(k));
+      return H3Plugin.longListToBlock(ring);
     } catch (Exception e) {
       return null;
     }
@@ -107,31 +160,41 @@ public final class TraversalFunctions {
   }
 
   @ScalarFunction(value = "h3_cell_to_local_ij")
-  @Description("Finds local IJ coordinates for a cell")
+  @Description("Finds local IJ coordinates for a cell, returns ROW(i INTEGER, j INTEGER)")
   @SqlNullable
-  @SqlType(H3Plugin.TYPE_ARRAY_INTEGER)
-  public static Block cellToLocalIj(
+  @SqlType("ROW(i INTEGER, j INTEGER)")
+  public static SqlRow cellToLocalIj(
       @SqlType(StandardTypes.BIGINT) long origin, @SqlType(StandardTypes.BIGINT) long cell) {
     try {
-      // TODO: Return as ROW(i INTEGER, j INTEGER)
       CoordIJ ij = H3Plugin.H3.cellToLocalIj(origin, cell);
-      return H3Plugin.intListToBlock(List.of(ij.i, ij.j));
+      RowType rowType =
+          RowType.from(
+              List.of(
+                  new RowType.Field(Optional.of("i"), INTEGER),
+                  new RowType.Field(Optional.of("j"), INTEGER)));
+      return RowValueBuilder.buildRowValue(
+          rowType,
+          fieldBuilders -> {
+            INTEGER.writeLong(fieldBuilders.get(0), ij.i);
+            INTEGER.writeLong(fieldBuilders.get(1), ij.j);
+          });
     } catch (Exception e) {
       return null;
     }
   }
 
   @ScalarFunction(value = "h3_local_ij_to_cell")
-  @Description("Finds cell given local IJ coordinates")
+  @Description("Finds cell given local IJ coordinates as ROW(i INTEGER, j INTEGER)")
   @SqlNullable
   @SqlType(StandardTypes.BIGINT)
   public static Long localIjToCell(
       @SqlType(StandardTypes.BIGINT) long origin,
-      @SqlType(StandardTypes.INTEGER) long i,
-      @SqlType(StandardTypes.INTEGER) long j) {
+      @SqlType("ROW(i INTEGER, j INTEGER)") SqlRow ijRow) {
     try {
-      // TODO: Accept as ROW(i INTEGER, j INTEGER)
-      CoordIJ ij = new CoordIJ(H3Plugin.longToInt(i), H3Plugin.longToInt(j));
+      int rawIndex = ijRow.getRawIndex();
+      int i = INTEGER.getInt(ijRow.getRawFieldBlock(0), rawIndex);
+      int j = INTEGER.getInt(ijRow.getRawFieldBlock(1), rawIndex);
+      CoordIJ ij = new CoordIJ(i, j);
       return H3Plugin.H3.localIjToCell(origin, ij);
     } catch (Exception e) {
       return null;

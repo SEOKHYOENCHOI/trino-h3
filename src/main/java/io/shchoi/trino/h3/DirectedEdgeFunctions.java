@@ -41,6 +41,18 @@ public final class DirectedEdgeFunctions {
     }
   }
 
+  @ScalarFunction(value = "h3_is_valid_directed_edge")
+  @Description("Returns true if the given index is a valid directed edge")
+  @SqlNullable
+  @SqlType(StandardTypes.BOOLEAN)
+  public static Boolean isValidDirectedEdge(@SqlType(StandardTypes.BIGINT) long h3) {
+    try {
+      return H3Plugin.H3.isValidDirectedEdge(h3);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   @ScalarFunction(value = "h3_cells_to_directed_edge")
   @Description("Find directed edge index from origin to destination")
   @SqlNullable

@@ -50,7 +50,19 @@ public class RegionFunctionsTest {
                       0x84754e3ffffffffL,
                       0x84754c5ffffffffL,
                       0x84754c7ffffffffL))));
-      // TODO: Test with holes
+      // Test polygon with hole - outer ring with inner hole
+      // Polygon: large square with smaller square hole in center
+      // At resolution 4, the hole should exclude some cells from the result
+      assertQueryResults(
+          queryRunner,
+          "SELECT cardinality(h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0), (0.5 0.5, 0.5 1.5, 1.5 1.5, 1.5 0.5, 0.5 0.5))'), 4)) > 0",
+          List.of(List.of(true)));
+
+      // Verify polygon with hole returns fewer cells than same polygon without hole
+      assertQueryResults(
+          queryRunner,
+          "SELECT cardinality(h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0), (0.5 0.5, 0.5 1.5, 1.5 1.5, 1.5 0.5, 0.5 0.5))'), 4)) < cardinality(h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0))'), 4))",
+          List.of(List.of(true)));
 
       assertQueryResults(
           queryRunner,

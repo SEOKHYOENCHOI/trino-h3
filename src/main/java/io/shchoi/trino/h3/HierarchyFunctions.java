@@ -65,6 +65,47 @@ public final class HierarchyFunctions {
     }
   }
 
+  @ScalarFunction(value = "h3_cell_to_children_size")
+  @Description("Returns the number of children at the given resolution")
+  @SqlNullable
+  @SqlType(StandardTypes.BIGINT)
+  public static Long cellToChildrenSize(
+      @SqlType(StandardTypes.BIGINT) long cell, @SqlType(StandardTypes.INTEGER) long childRes) {
+    try {
+      return H3Plugin.H3.cellToChildrenSize(cell, H3Plugin.longToInt(childRes));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @ScalarFunction(value = "h3_cell_to_child_pos")
+  @Description("Returns the position of the child cell within the parent")
+  @SqlNullable
+  @SqlType(StandardTypes.BIGINT)
+  public static Long cellToChildPos(
+      @SqlType(StandardTypes.BIGINT) long child, @SqlType(StandardTypes.INTEGER) long parentRes) {
+    try {
+      return H3Plugin.H3.cellToChildPos(child, H3Plugin.longToInt(parentRes));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @ScalarFunction(value = "h3_child_pos_to_cell")
+  @Description("Returns the child cell at the given position")
+  @SqlNullable
+  @SqlType(StandardTypes.BIGINT)
+  public static Long childPosToCell(
+      @SqlType(StandardTypes.BIGINT) long childPos,
+      @SqlType(StandardTypes.BIGINT) long parent,
+      @SqlType(StandardTypes.INTEGER) long childRes) {
+    try {
+      return H3Plugin.H3.childPosToCell(childPos, parent, H3Plugin.longToInt(childRes));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
   @ScalarFunction(value = "h3_compact_cells")
   @Description("Compact indexes to coarser resolutions")
   @SqlNullable
