@@ -1,6 +1,8 @@
 # trino-h3
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Build](https://github.com/SEOKHYOENCHOI/trino-h3/actions/workflows/tests.yml/badge.svg)](https://github.com/SEOKHYOENCHOI/trino-h3/actions/workflows/tests.yml)
+[![codecov](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3/branch/main/graph/badge.svg)](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3)
 [![H3 Version](https://img.shields.io/badge/h3-v4.3.2-blue.svg)](https://github.com/uber/h3/releases/tag/v4.3.2)
 [![Trino Version](https://img.shields.io/badge/trino-v436-blue.svg)](https://trino.io/)
 [![Java Version](https://img.shields.io/badge/java-21-blue.svg)](https://openjdk.org/)
