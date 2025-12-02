@@ -7,76 +7,55 @@ on:
     branches: [main]
 
 jobs:
-  tests:
-    name: Java ${{ matrix.java-version }} ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  test:
+    name: Test (Java ${{ matrix.java-version }})
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        java-distribution: [adopt]
-        java-version: [8, 11, 15]
+        java-version: ['21']
 
     steps:
-      - uses: actions/checkout@v2.1.1
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
         with:
-          submodules: recursive
+          distribution: 'temurin'
+          java-version: ${{ matrix.java-version }}
 
-      - uses: actions/setup-java@v2
-        with:
-          distribution: "${{ matrix.java-distribution }}"
-          java-version: "${{ matrix.java-version }}"
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - uses: actions/cache@v2
-        id: maven-cache
-        with:
-          path: ~/.m2/
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Build and Test
+        run: ./gradlew build
 
-      - name: Format check
-        if: ${{ matrix.java-version != 8 }}
-        run: mvn com.spotify.fmt:fmt-maven-plugin:check
-
-      - name: Tests
-        run: mvn -B -V clean test site
+      - name: Check formatting
+        run: ./gradlew spotlessCheck
 
       - name: Check for uncommitted changes
         run: git diff --exit-code
 
-  tests-coverage:
-    name: Java (Coverage) ${{ matrix.java-version }} ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        java-distribution: [adopt]
-        # On 8 due to https://github.com/trautonen/coveralls-maven-plugin/issues/141
-        java-version: [8]
+  coverage:
+    name: Coverage Report
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2.1.1
-        with:
-          submodules: recursive
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v2
+      - uses: actions/setup-java@v4
         with:
-          distribution: "${{ matrix.java-distribution }}"
-          java-version: "${{ matrix.java-version }}"
+          distribution: 'temurin'
+          java-version: '21'
 
-      - uses: actions/cache@v2
-        id: maven-cache
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Run tests with coverage
+        run: ./gradlew test jacocoTestReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
         with:
-          path: ~/.m2/
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-      - name: Coverage report
-        env:
-          CI_NAME: github
-          COVERALLS_SECRET: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          mvn clean test jacoco:report coveralls:report --no-transfer-progress -DrepoToken=$COVERALLS_SECRET -DpullRequest=${{ github.event.number }}
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: false

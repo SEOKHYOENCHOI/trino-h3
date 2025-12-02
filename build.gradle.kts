@@ -1,5 +1,6 @@
 plugins {
     java
+    jacoco
     id("com.gradleup.shadow") version "8.3.5"
     id("com.diffplug.spotless") version "6.25.0"
     `maven-publish`
@@ -88,6 +89,15 @@ tasks.test {
         events("passed", "skipped", "failed")
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         showStandardStreams = false
+    }
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
     }
 }
 
