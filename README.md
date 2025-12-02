@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![Build](https://github.com/SEOKHYOENCHOI/trino-h3/actions/workflows/tests.yml/badge.svg)](https://github.com/SEOKHYOENCHOI/trino-h3/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3/branch/main/graph/badge.svg)](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3)
+[![GitHub Release](https://img.shields.io/github/v/release/SEOKHYOENCHOI/trino-h3)](https://github.com/SEOKHYOENCHOI/trino-h3/releases)
 [![H3 Version](https://img.shields.io/badge/h3-v4.3.2-blue.svg)](https://github.com/uber/h3/releases/tag/v4.3.2)
 [![Trino Version](https://img.shields.io/badge/trino-v436-blue.svg)](https://trino.io/)
 [![Java Version](https://img.shields.io/badge/java-21-blue.svg)](https://openjdk.org/)
@@ -11,13 +12,48 @@ This library provides Trino bindings for the [H3 Core Library](https://github.co
 
 > **Note**: This project is forked from [foursquare/h3-presto](https://github.com/foursquare/h3-presto) and migrated to Trino.
 
+## Installation
+
+### Option 1: Docker Image (Recommended)
+
+Use the pre-built Docker image with H3 plugin already installed:
+
+```bash
+docker run -p 8080:8080 seokhyoenchoi/trino-h3:latest
+```
+
+Or specify a version:
+
+```bash
+docker run -p 8080:8080 seokhyoenchoi/trino-h3:1.0.0
+```
+
+### Option 2: Download JAR from Releases
+
+Download the latest JAR from [GitHub Releases](https://github.com/SEOKHYOENCHOI/trino-h3/releases):
+
+```bash
+# Download the JAR
+wget https://github.com/SEOKHYOENCHOI/trino-h3/releases/latest/download/trino-h3-1.0.0.jar
+
+# Create plugin directory and copy JAR
+mkdir -p /usr/lib/trino/plugin/h3/
+cp trino-h3-*.jar /usr/lib/trino/plugin/h3/
+
+# Restart Trino server
+```
+
+### Option 3: Build from Source
+
+Build the plugin yourself:
+
+```bash
+./gradlew shadowJar
+```
+
+Copy the JAR from `build/libs/trino-h3-*.jar` to `<trino-server>/plugin/h3/` on all nodes and restart Trino.
+
 ## Usage
-
-You will need to install the plugin on all nodes of your Trino cluster. For convenience of deployment, the plugin is distributed as a shaded Jar with the dependencies such as H3-Java and JTS packaged in.
-
-1. Build the plugin: `./gradlew shadowJar`
-2. Copy the JAR from `build/libs/trino-h3-*-all.jar` to `<trino-server>/plugin/h3/`
-3. Restart Trino server
 
 Once installed, Trino will automatically load the `H3Plugin` at startup and the functions will then be available from SQL:
 

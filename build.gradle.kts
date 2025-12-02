@@ -3,7 +3,6 @@ plugins {
     jacoco
     id("com.gradleup.shadow") version "8.3.5"
     id("com.diffplug.spotless") version "6.25.0"
-    `maven-publish`
 }
 
 // Read versions from gradle.properties
@@ -16,7 +15,10 @@ val assertjVersion: String by project
 val googleJavaFormatVersion: String by project
 
 group = project.property("group") as String
-version = project.property("version") as String
+
+// Use git tag version if available (CI), otherwise use gradle.properties
+version = System.getenv("RELEASE_VERSION")
+    ?: project.property("version") as String
 
 java {
     sourceCompatibility = JavaVersion.VERSION_21
@@ -138,43 +140,6 @@ spotless {
 
         target("src/**/*.java")
         targetExclude("build/**")
-    }
-}
-
-// Publishing configuration
-publishing {
-    publications {
-        create<MavenPublication>("maven") {
-            from(components["java"])
-
-            pom {
-                name.set("trino-h3")
-                description.set("Trino plugin for H3, a hierarchical hexagonal geospatial indexing system.")
-                url.set("https://github.com/SEOKHYOENCHOI/trino-h3")
-
-                licenses {
-                    license {
-                        name.set("Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                        distribution.set("repo")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("shchoi")
-                        name.set("SEOKHYOEN CHOI")
-                        email.set("lkamna12@gmail.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/SEOKHYOENCHOI/trino-h3.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/SEOKHYOENCHOI/trino-h3.git")
-                    url.set("https://github.com/SEOKHYOENCHOI/trino-h3/tree/main")
-                }
-            }
-        }
     }
 }
 
