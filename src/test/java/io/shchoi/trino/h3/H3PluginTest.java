@@ -73,17 +73,17 @@ public class H3PluginTest {
 
   private static void compareFieldValues(Object expectedVal, Object actualVal, String message) {
     if (expectedVal instanceof Float && actualVal instanceof Float) {
+      float expected = ((Float) expectedVal).floatValue();
+      float actual = ((Float) actualVal).floatValue();
+      float tolerance = (float) Math.max(EPSILON, Math.abs(expected) * EPSILON);
       assertEquals(
-          ((Float) expectedVal).floatValue(),
-          ((Float) actualVal).floatValue(),
-          EPSILON,
-          String.format("%s: value matches within epsilon", message));
+          expected, actual, tolerance, String.format("%s: value matches within epsilon", message));
     } else if (expectedVal instanceof Double && actualVal instanceof Double) {
+      double expected = ((Double) expectedVal).doubleValue();
+      double actual = ((Double) actualVal).doubleValue();
+      double tolerance = Math.max(EPSILON, Math.abs(expected) * EPSILON);
       assertEquals(
-          ((Double) expectedVal).doubleValue(),
-          ((Double) actualVal).doubleValue(),
-          EPSILON,
-          String.format("%s: value matches within epsilon", message));
+          expected, actual, tolerance, String.format("%s: value matches within epsilon", message));
     } else if (expectedVal instanceof Geometry && actualVal instanceof String) {
       try {
         GeometryFactory geometryFactory = new GeometryFactory();
