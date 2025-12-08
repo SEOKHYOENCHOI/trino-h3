@@ -54,8 +54,8 @@ jobs:
         run: ./gradlew test jacocoTestReport
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: build/reports/jacoco/test/jacocoTestReport.xml
-          fail_ci_if_error: false
+          fail_ci_if_error: true
