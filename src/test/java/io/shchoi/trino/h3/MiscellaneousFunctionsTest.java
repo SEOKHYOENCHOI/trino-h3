@@ -147,9 +147,7 @@ public class MiscellaneousFunctionsTest {
 
       // Test with same coordinates (distance = 0)
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_great_circle_distance(0, 0, 0, 0, 'km')",
-          List.of(List.of(0.0)));
+          queryRunner, "SELECT h3_great_circle_distance(0, 0, 0, 0, 'km')", List.of(List.of(0.0)));
 
       // Test with other units
       assertQueryResults(

@@ -159,7 +159,8 @@ public class HierarchyFunctionsTest {
     try (QueryRunner queryRunner = createQueryRunner()) {
       // Get child position for multiple children of the same parent
       // Parent: 85283473fffffff (res 5)
-      // Children at res 6: 862834707, 86283470f, 862834717, 86283471f, 862834727, 86283472f, 862834737
+      // Children at res 6: 862834707, 86283470f, 862834717, 86283471f, 862834727, 86283472f,
+      // 862834737
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), 5)",

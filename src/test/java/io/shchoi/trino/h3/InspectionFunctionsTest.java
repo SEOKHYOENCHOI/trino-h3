@@ -159,9 +159,7 @@ public class InspectionFunctionsTest {
 
       // Test with invalid cell (0) - should not throw
       assertQueryResults(
-          queryRunner,
-          "SELECT h3_get_icosahedron_faces(0)",
-          List.of(List.of(List.of(1))));
+          queryRunner, "SELECT h3_get_icosahedron_faces(0)", List.of(List.of(List.of(1))));
     }
   }
 }
