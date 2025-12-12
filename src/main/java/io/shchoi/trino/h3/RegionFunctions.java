@@ -17,7 +17,6 @@ package io.shchoi.trino.h3;
 
 import static io.trino.geospatial.serde.JtsGeometrySerde.deserialize;
 import static io.trino.geospatial.serde.JtsGeometrySerde.serialize;
-import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POLYGON;
 
 import com.uber.h3core.util.LatLng;
@@ -46,7 +45,8 @@ public final class RegionFunctions {
   @SqlNullable
   @SqlType(H3Plugin.TYPE_ARRAY_BIGINT)
   public static Block polygonToCells(
-      @SqlType(GEOMETRY_TYPE_NAME) Slice polygonSlice, @SqlType(StandardTypes.INTEGER) long res) {
+      @SqlType(StandardTypes.GEOMETRY) Slice polygonSlice,
+      @SqlType(StandardTypes.INTEGER) long res) {
     try {
       Geometry polygonGeomUntyped = deserialize(polygonSlice);
       if (!TYPENAME_POLYGON.equals(polygonGeomUntyped.getGeometryType())) {
@@ -77,7 +77,7 @@ public final class RegionFunctions {
   @ScalarFunction(value = "h3_cells_to_multi_polygon")
   @Description("Find the multipolygon of the given cells")
   @SqlNullable
-  @SqlType(GEOMETRY_TYPE_NAME)
+  @SqlType(StandardTypes.GEOMETRY)
   public static Slice cellsToMultiPolygon(
       @SqlNullable @SqlType(H3Plugin.TYPE_ARRAY_BIGINT) Block h3Block) {
     if (h3Block == null) {

@@ -146,7 +146,7 @@ public class H3PluginTest {
       Map<String, String> properties = Map.of();
       DistributedQueryRunner queryRunner =
           DistributedQueryRunner.builder(session)
-              .setNodeCount(1)
+              .setWorkerCount(1)
               .setExtraProperties(properties)
               .build();
 

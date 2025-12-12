@@ -15,8 +15,6 @@
  */
 package io.shchoi.trino.h3;
 
-import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
-
 import com.uber.h3core.util.LatLng;
 import io.airlift.slice.Slice;
 import io.trino.spi.block.Block;
@@ -58,7 +56,7 @@ public final class VertexFunctions {
   @ScalarFunction(value = "h3_vertex_to_latlng")
   @Description("Finds coordinates of a topological vertex index")
   @SqlNullable
-  @SqlType(GEOMETRY_TYPE_NAME)
+  @SqlType(StandardTypes.GEOMETRY)
   public static Slice vertexToLatLng(@SqlType(StandardTypes.BIGINT) long vertex) {
     try {
       LatLng latLng = H3Plugin.H3.vertexToLatLng(vertex);

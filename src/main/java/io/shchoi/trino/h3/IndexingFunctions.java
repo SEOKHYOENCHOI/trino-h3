@@ -2,7 +2,6 @@ package io.shchoi.trino.h3;
 
 import static io.trino.geospatial.GeometryType.POLYGON;
 import static io.trino.geospatial.serde.JtsGeometrySerde.deserialize;
-import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 import static org.locationtech.jts.geom.Geometry.TYPENAME_POINT;
 
 import com.uber.h3core.util.LatLng;
@@ -40,7 +39,7 @@ public final class IndexingFunctions {
   @SqlNullable
   @SqlType(StandardTypes.BIGINT)
   public static Long latLngToCell(
-      @SqlType(GEOMETRY_TYPE_NAME) Slice pointSlice, @SqlType(StandardTypes.INTEGER) long res) {
+      @SqlType(StandardTypes.GEOMETRY) Slice pointSlice, @SqlType(StandardTypes.INTEGER) long res) {
     try {
       Geometry pointGeomUntyped = deserialize(pointSlice);
       if (!TYPENAME_POINT.equals(pointGeomUntyped.getGeometryType())) {
@@ -61,7 +60,7 @@ public final class IndexingFunctions {
   @ScalarFunction(value = "h3_cell_to_latlng")
   @Description("Convert H3 index to degrees lat/lng")
   @SqlNullable
-  @SqlType(GEOMETRY_TYPE_NAME)
+  @SqlType(StandardTypes.GEOMETRY)
   public static Slice cellToLatLng(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
       LatLng latLng = H3Plugin.H3.cellToLatLng(h3);
@@ -78,7 +77,7 @@ public final class IndexingFunctions {
   @ScalarFunction(value = "h3_cell_to_boundary")
   @Description("Convert H3 index to boundary degrees lat/lng, interleaved")
   @SqlNullable
-  @SqlType(GEOMETRY_TYPE_NAME)
+  @SqlType(StandardTypes.GEOMETRY)
   public static Slice cellToBoundary(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
       List<LatLng> boundary = H3Plugin.H3.cellToBoundary(h3);

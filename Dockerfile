@@ -1,4 +1,4 @@
-ARG TRINO_VERSION=436
+ARG TRINO_VERSION=476
 FROM trinodb/trino:${TRINO_VERSION}
 
 # Create plugin directory and copy H3 plugin

@@ -5,6 +5,11 @@ plugins {
     id("com.diffplug.spotless") version "6.25.0"
 }
 
+// JaCoCo 0.8.13 for JDK 24 support
+jacoco {
+    toolVersion = "0.8.13"
+}
+
 // Read versions from gradle.properties
 val trinoVersion: String by project
 val h3Version: String by project
@@ -21,10 +26,10 @@ version = System.getenv("RELEASE_VERSION")
     ?: project.property("version") as String
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_24
+    targetCompatibility = JavaVersion.VERSION_24
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(24))
     }
 }
 
@@ -39,7 +44,7 @@ dependencies {
     // JTS Core for geometric operations
     implementation("org.locationtech.jts:jts-core:$jtsVersion")
 
-    // Trino SPI Dependencies (provided) - Version 436 (first JDK 21 support)
+    // Trino SPI Dependencies (provided) - Version 476 (requires JDK 24)
     compileOnly("io.trino:trino-spi:$trinoVersion")
     compileOnly("io.trino:trino-main:$trinoVersion")
     compileOnly("io.trino:trino-geospatial:$trinoVersion")
@@ -69,14 +74,6 @@ configurations.all {
             // Fix CVE-2025-11226, CVE-2024-12798, CVE-2024-12801 (logback-core 1.4.8 -> 1.5.16)
             "ch.qos.logback:logback-core:1.5.16",
             "ch.qos.logback:logback-classic:1.5.16",
-            // Fix CVE-2024-57699 (json-smart 2.5.0 -> 2.5.1)
-            "net.minidev:json-smart:2.5.1",
-            // Fix CVE-2024-22201 and others (jetty 11.0.17 -> 11.0.24)
-            "org.eclipse.jetty:jetty-server:11.0.24",
-            "org.eclipse.jetty:jetty-http:11.0.24",
-            "org.eclipse.jetty:jetty-io:11.0.24",
-            "org.eclipse.jetty:jetty-util:11.0.24",
-            "org.eclipse.jetty.http2:http2-common:11.0.24",
             // Fix CVE-2024-25710, CVE-2024-26308 (commons-compress 1.24.0 -> 1.27.1)
             "org.apache.commons:commons-compress:1.27.1",
             // Fix CVE-2024-29857 and others (bcprov 1.76 -> 1.79)

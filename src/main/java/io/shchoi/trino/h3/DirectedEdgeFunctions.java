@@ -16,7 +16,6 @@
 package io.shchoi.trino.h3;
 
 import static io.trino.geospatial.GeometryType.LINE_STRING;
-import static io.trino.plugin.geospatial.GeometryType.GEOMETRY_TYPE_NAME;
 
 import io.airlift.slice.Slice;
 import io.trino.spi.block.Block;
@@ -117,7 +116,7 @@ public final class DirectedEdgeFunctions {
   @ScalarFunction(value = "h3_directed_edge_to_boundary")
   @Description("Find the lat/lng boundary of a directed edge")
   @SqlNullable
-  @SqlType(GEOMETRY_TYPE_NAME)
+  @SqlType(StandardTypes.GEOMETRY)
   public static Slice directedEdgeToBoundary(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
       return H3Plugin.latLngListToGeometry(H3Plugin.H3.directedEdgeToBoundary(h3), LINE_STRING);
