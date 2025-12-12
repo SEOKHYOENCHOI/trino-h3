@@ -5,8 +5,8 @@
 [![codecov](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3/branch/main/graph/badge.svg)](https://codecov.io/gh/SEOKHYOENCHOI/trino-h3)
 [![GitHub Release](https://img.shields.io/github/v/release/SEOKHYOENCHOI/trino-h3)](https://github.com/SEOKHYOENCHOI/trino-h3/releases)
 [![H3 Version](https://img.shields.io/badge/h3-v4.3.2-blue.svg)](https://github.com/uber/h3/releases/tag/v4.3.2)
-[![Trino Version](https://img.shields.io/badge/trino-v436-blue.svg)](https://trino.io/)
-[![Java Version](https://img.shields.io/badge/java-21-blue.svg)](https://openjdk.org/)
+[![Trino Version](https://img.shields.io/badge/trino-v476-blue.svg)](https://trino.io/)
+[![Java Version](https://img.shields.io/badge/java-24-blue.svg)](https://openjdk.org/)
 
 This library provides Trino bindings for the [H3 Core Library](https://github.com/uber/h3) via a Trino plugin. For API reference, please see the [H3 Documentation](https://h3geo.org/).
 
@@ -148,7 +148,7 @@ SELECT h3_latlng_to_cell(lat, lng, 9) AS hex FROM my_table;
 
 ## Development
 
-Building the library requires JDK 21 and Gradle.
+Building the library requires JDK 24 and Gradle.
 
 ### Build
 
@@ -182,8 +182,8 @@ Building the library requires JDK 21 and Gradle.
 
 ## Requirements
 
-- Java 21+
-- Trino 436+
+- Java 24+
+- Trino 476+
 - H3 4.3.2
 
 ## Legal and Licensing
