@@ -45,6 +45,22 @@ public class VertexFunctionsTest {
           "SELECT h3_cell_to_vertex(from_base('85283473fffffff', 16), 0), h3_cell_to_vertex(from_base('85283473fffffff', 16), 3)",
           List.of(List.of(0x22528340bfffffffL, 0x255283463fffffffL)));
 
+      // Test all 6 vertices of a hexagon (0-5)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_vertex(from_base('85283473fffffff', 16), 5)",
+          List.of(List.of(0x23528340bfffffffL)));
+
+      // Test out of range vertexNum (hexagon has 6 vertices: 0-5)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_vertex(from_base('85283473fffffff', 16), 6)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_vertex(from_base('85283473fffffff', 16), 7)",
+          List.of(Collections.singletonList(null)));
+
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_vertex(null, 4)",
@@ -143,6 +159,7 @@ public class VertexFunctionsTest {
           List.of(List.of(false, true)));
 
       assertQueryResults(queryRunner, "SELECT h3_is_valid_vertex(0)", List.of(List.of(false)));
+      assertQueryResults(queryRunner, "SELECT h3_is_valid_vertex(-1)", List.of(List.of(false)));
       assertQueryResults(
           queryRunner, "SELECT h3_is_valid_vertex(null)", List.of(Collections.singletonList(null)));
     }

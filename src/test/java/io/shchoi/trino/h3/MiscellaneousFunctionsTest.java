@@ -106,10 +106,23 @@ public class MiscellaneousFunctionsTest {
   @Test
   public void testEdgeLength() {
     try (QueryRunner queryRunner = createQueryRunner()) {
+      // Test with 'km' unit
       assertQueryResults(
           queryRunner,
           "SELECT h3_edge_length(from_base('115283473fffffff', 16), 'km')",
           List.of(List.of(10.294736086198531)));
+
+      // Test with 'm' unit
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_edge_length(from_base('115283473fffffff', 16), 'm')",
+          List.of(List.of(10294.736086198531)));
+
+      // Test with 'rads' unit
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_edge_length(from_base('115283473fffffff', 16), 'rads')",
+          List.of(List.of(0.0016158674846362433)));
 
       assertQueryResults(
           queryRunner,
@@ -131,6 +144,22 @@ public class MiscellaneousFunctionsTest {
           queryRunner,
           "SELECT h3_great_circle_distance(-10, 0, 10, 0, 'km')",
           List.of(List.of(2223.9010395045884)));
+
+      // Test with same coordinates (distance = 0)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_great_circle_distance(0, 0, 0, 0, 'km')",
+          List.of(List.of(0.0)));
+
+      // Test with other units
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_great_circle_distance(-10, 0, 10, 0, 'm')",
+          List.of(List.of(2223901.0395045886)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_great_circle_distance(-10, 0, 10, 0, 'rads')",
+          List.of(List.of(0.3490658503988659)));
 
       assertQueryResults(
           queryRunner,

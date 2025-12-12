@@ -76,6 +76,16 @@ public class RegionFunctionsTest {
           queryRunner,
           "SELECT h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 1 1, 1 0, 0 0))'), null) hex",
           List.of(Collections.singletonList(null)));
+
+      // Test invalid resolution (-1, 16)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 1 1, 1 0, 0 0))'), -1) hex",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_polygon_to_cells(ST_GeometryFromText('POLYGON ((0 0, 1 1, 1 0, 0 0))'), 16) hex",
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -100,6 +110,48 @@ public class RegionFunctionsTest {
           queryRunner,
           "SELECT ST_AsText(h3_cells_to_multi_polygon(ARRAY [])) multipolygon",
           List.of(List.of("MULTIPOLYGON EMPTY")));
+
+      // Test with invalid cell values (-1)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cells_to_multi_polygon(ARRAY [-1]) multipolygon",
+          List.of(Collections.singletonList(null)));
+    }
+  }
+
+  @Test
+  public void testCellsToMultiPolygonWithHole() {
+    // Test with cells forming a ring (donut shape with hole in center)
+    // This covers the lambda that handles interior rings (holes) in cellsToMultiPolygon
+    try (QueryRunner queryRunner = createQueryRunner()) {
+      // Create a ring of cells at distance 2 from center, but exclude the center
+      // This should produce a polygon with a hole when converted
+      // h3_grid_disk returns all cells within distance k, so we get ring k=2 cells only
+      // by using array_except to subtract the inner disk
+
+      // Test that ring of cells (excluding center) produces valid geometry
+      assertQueryResults(
+          queryRunner,
+          "SELECT ST_IsValid(h3_cells_to_multi_polygon("
+              + "array_except("
+              + "h3_grid_disk(from_base('85283473fffffff', 16), 2), "
+              + "h3_grid_disk(from_base('85283473fffffff', 16), 0)"
+              + ")))",
+          List.of(List.of(true)));
+
+      // Verify that including all cells (disk k=2) vs ring only (disk k=2 minus center)
+      // produces different geometries (ring has hole)
+      assertQueryResults(
+          queryRunner,
+          "SELECT NOT ST_Equals("
+              + "h3_cells_to_multi_polygon(h3_grid_disk(from_base('85283473fffffff', 16), 2)), "
+              + "h3_cells_to_multi_polygon("
+              + "array_except("
+              + "h3_grid_disk(from_base('85283473fffffff', 16), 2), "
+              + "h3_grid_disk(from_base('85283473fffffff', 16), 0)"
+              + "))"
+              + ")",
+          List.of(List.of(true)));
     }
   }
 }

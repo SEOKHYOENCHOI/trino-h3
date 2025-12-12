@@ -21,7 +21,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.INTEGER)
   public static Long getResolution(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return Long.valueOf(H3Plugin.H3.getResolution(h3));
+      return (long) H3Plugin.H3.getResolution(h3);
     } catch (Exception e) {
       return null;
     }
@@ -33,7 +33,7 @@ public final class InspectionFunctions {
   @SqlType(StandardTypes.INTEGER)
   public static Long getBaseCellNumber(@SqlType(StandardTypes.BIGINT) long h3) {
     try {
-      return Long.valueOf(H3Plugin.H3.getBaseCellNumber(h3));
+      return (long) H3Plugin.H3.getBaseCellNumber(h3);
     } catch (Exception e) {
       return null;
     }
@@ -65,23 +65,38 @@ public final class InspectionFunctions {
 
   @ScalarFunction(value = "h3_is_valid_cell")
   @Description("Returns true if given a valid H3 cell identifier")
+  @SqlNullable
   @SqlType(StandardTypes.BOOLEAN)
-  public static boolean isValidCell(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.H3.isValidCell(h3);
+  public static Boolean isValidCell(@SqlType(StandardTypes.BIGINT) long h3) {
+    try {
+      return H3Plugin.H3.isValidCell(h3);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   @ScalarFunction(value = "h3_is_res_class_iii")
   @Description("Returns true if the index is in resolution class III")
+  @SqlNullable
   @SqlType(StandardTypes.BOOLEAN)
-  public static boolean isResClassIII(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.H3.isResClassIII(h3);
+  public static Boolean isResClassIII(@SqlType(StandardTypes.BIGINT) long h3) {
+    try {
+      return H3Plugin.H3.isResClassIII(h3);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   @ScalarFunction(value = "h3_is_pentagon")
   @Description("Returns true if the cell index is a pentagon")
+  @SqlNullable
   @SqlType(StandardTypes.BOOLEAN)
-  public static boolean isPentagon(@SqlType(StandardTypes.BIGINT) long h3) {
-    return H3Plugin.H3.isPentagon(h3);
+  public static Boolean isPentagon(@SqlType(StandardTypes.BIGINT) long h3) {
+    try {
+      return H3Plugin.H3.isPentagon(h3);
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   @ScalarFunction(value = "h3_get_icosahedron_faces")

@@ -143,6 +143,10 @@ public class DirectedEdgeFunctionsTest {
           queryRunner,
           "SELECT h3_get_directed_edge_origin(null)",
           List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_get_directed_edge_origin(-1)",
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -162,6 +166,10 @@ public class DirectedEdgeFunctionsTest {
           queryRunner,
           "SELECT h3_get_directed_edge_destination(null)",
           List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_get_directed_edge_destination(-1)",
+          List.of(Collections.singletonList(null)));
     }
   }
 
@@ -180,6 +188,10 @@ public class DirectedEdgeFunctionsTest {
       assertQueryResults(
           queryRunner,
           "SELECT h3_directed_edge_to_cells(null)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_directed_edge_to_cells(-1)",
           List.of(Collections.singletonList(null)));
     }
   }
@@ -216,6 +228,19 @@ public class DirectedEdgeFunctionsTest {
           queryRunner,
           "SELECT h3_origin_to_directed_edges(null)",
           List.of(Collections.singletonList(null)));
+      // Note: -1 returns edges similar to 0 (H3 library behavior for invalid cells)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_origin_to_directed_edges(-1)",
+          List.of(
+              List.of(
+                  List.of(
+                      0x91ffffffffffffffL,
+                      0x92ffffffffffffffL,
+                      0x93ffffffffffffffL,
+                      0x94ffffffffffffffL,
+                      0x95ffffffffffffffL,
+                      0x96ffffffffffffffL))));
     }
   }
 

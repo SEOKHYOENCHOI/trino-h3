@@ -19,7 +19,6 @@ import static io.trino.geospatial.GeometryType.LINE_STRING;
 import static io.trino.geospatial.GeometryType.POLYGON;
 import static io.trino.geospatial.serde.JtsGeometrySerde.serialize;
 import static io.trino.spi.type.BigintType.BIGINT;
-import static io.trino.spi.type.IntegerType.INTEGER;
 
 import com.uber.h3core.H3Core;
 import com.uber.h3core.util.LatLng;
@@ -89,14 +88,6 @@ public class H3Plugin implements Plugin {
     } else {
       throw new IllegalArgumentException("Cannot serialize with GeometryType " + geometryType);
     }
-  }
-
-  static Block intListToBlock(List<Integer> list) {
-    BlockBuilder blockBuilder = INTEGER.createFixedSizeBlockBuilder(list.size());
-    for (Integer val : list) {
-      INTEGER.writeLong(blockBuilder, val);
-    }
-    return blockBuilder.build();
   }
 
   static Slice latLngToGeometry(LatLng latLng) {

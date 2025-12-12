@@ -78,7 +78,11 @@ public final class RegionFunctions {
   @Description("Find the multipolygon of the given cells")
   @SqlNullable
   @SqlType(GEOMETRY_TYPE_NAME)
-  public static Slice cellsToMultiPolygon(@SqlType(H3Plugin.TYPE_ARRAY_BIGINT) Block h3Block) {
+  public static Slice cellsToMultiPolygon(
+      @SqlNullable @SqlType(H3Plugin.TYPE_ARRAY_BIGINT) Block h3Block) {
+    if (h3Block == null) {
+      return null;
+    }
     try {
       List<Long> cells = H3Plugin.longBlockToList(h3Block);
       List<List<List<LatLng>>> multiPolygon = H3Plugin.H3.cellsToMultiPolygon(cells, true);

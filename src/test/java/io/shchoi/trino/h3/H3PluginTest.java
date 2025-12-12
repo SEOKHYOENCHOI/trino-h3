@@ -18,6 +18,7 @@ package io.shchoi.trino.h3;
 import static io.trino.testing.TestingSession.testSessionBuilder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.trino.Session;
@@ -50,6 +51,26 @@ public class H3PluginTest {
     try (DistributedQueryRunner queryRunner = createQueryRunner()) {
       System.out.println(queryRunner.execute("SELECT 1=1"));
     }
+  }
+
+  @Test
+  public void testLongToIntOverflow() {
+    // Test value greater than Integer.MAX_VALUE
+    assertThrows(
+        RuntimeException.class,
+        () -> H3Plugin.longToInt(Integer.MAX_VALUE + 1L),
+        "Should throw for values greater than Integer.MAX_VALUE");
+
+    // Test value less than Integer.MIN_VALUE
+    assertThrows(
+        RuntimeException.class,
+        () -> H3Plugin.longToInt(Integer.MIN_VALUE - 1L),
+        "Should throw for values less than Integer.MIN_VALUE");
+
+    // Test valid range values work correctly
+    assertEquals(Integer.MAX_VALUE, H3Plugin.longToInt(Integer.MAX_VALUE));
+    assertEquals(Integer.MIN_VALUE, H3Plugin.longToInt(Integer.MIN_VALUE));
+    assertEquals(0, H3Plugin.longToInt(0L));
   }
 
   public static <T> void assertQueryResults(

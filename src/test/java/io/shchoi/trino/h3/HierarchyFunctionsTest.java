@@ -157,11 +157,37 @@ public class HierarchyFunctionsTest {
   @Test
   public void testCellToChildPos() {
     try (QueryRunner queryRunner = createQueryRunner()) {
-      // Get child position
+      // Get child position for multiple children of the same parent
+      // Parent: 85283473fffffff (res 5)
+      // Children at res 6: 862834707, 86283470f, 862834717, 86283471f, 862834727, 86283472f, 862834737
       assertQueryResults(
           queryRunner,
           "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), 5)",
           List.of(List.of(0L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('86283470fffffff', 16), 5)",
+          List.of(List.of(1L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834717ffffff', 16), 5)",
+          List.of(List.of(2L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('86283471fffffff', 16), 5)",
+          List.of(List.of(3L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834727ffffff', 16), 5)",
+          List.of(List.of(4L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('86283472fffffff', 16), 5)",
+          List.of(List.of(5L)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834737ffffff', 16), 5)",
+          List.of(List.of(6L)));
 
       // Null tests
       assertQueryResults(
@@ -176,17 +202,57 @@ public class HierarchyFunctionsTest {
           queryRunner,
           "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), -1)",
           List.of(Collections.singletonList(null)));
+      // Test with invalid parent resolution (higher than child)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_cell_to_child_pos(from_base('862834707ffffff', 16), 7)",
+          List.of(Collections.singletonList(null)));
     }
   }
 
   @Test
   public void testChildPosToCell() {
     try (QueryRunner queryRunner = createQueryRunner()) {
-      // Get child at position 0
+      // Get children at all valid positions (0-6 for hexagon)
+      // Parent: 85283473fffffff (res 5), Target res: 6
       assertQueryResults(
           queryRunner,
           "SELECT h3_child_pos_to_cell(0, from_base('85283473fffffff', 16), 6)",
           List.of(List.of(0x862834707ffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(1, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x86283470fffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(2, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x862834717ffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(3, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x86283471fffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(4, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x862834727ffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(5, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x86283472fffffffL)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(6, from_base('85283473fffffff', 16), 6)",
+          List.of(List.of(0x862834737ffffffL)));
+
+      // Test invalid position (out of range - hexagons have 7 children, positions 0-6)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(7, from_base('85283473fffffff', 16), 6)",
+          List.of(Collections.singletonList(null)));
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_child_pos_to_cell(100, from_base('85283473fffffff', 16), 6)",
+          List.of(Collections.singletonList(null)));
 
       // Null tests
       assertQueryResults(

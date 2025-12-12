@@ -63,6 +63,16 @@ public class InspectionFunctionsTest {
 
       assertQueryResults(
           queryRunner, "SELECT h3_string_to_h3(null)", List.of(Collections.singletonList(null)));
+
+      // Test invalid string input - should return null (catches exception)
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_string_to_h3('invalid_h3_string')",
+          List.of(Collections.singletonList(null)));
+
+      // Test empty string input - should return null (catches exception)
+      assertQueryResults(
+          queryRunner, "SELECT h3_string_to_h3('')", List.of(Collections.singletonList(null)));
     }
   }
 
@@ -146,6 +156,12 @@ public class InspectionFunctionsTest {
           queryRunner,
           "SELECT h3_get_icosahedron_faces(null)",
           List.of(Collections.singletonList(null)));
+
+      // Test with invalid cell (0) - should not throw
+      assertQueryResults(
+          queryRunner,
+          "SELECT h3_get_icosahedron_faces(0)",
+          List.of(List.of(List.of(1))));
     }
   }
 }

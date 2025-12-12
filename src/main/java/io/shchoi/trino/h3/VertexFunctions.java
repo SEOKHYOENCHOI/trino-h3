@@ -70,8 +70,13 @@ public final class VertexFunctions {
 
   @ScalarFunction(value = "h3_is_valid_vertex")
   @Description("Returns true if this is a valid vertex index")
+  @SqlNullable
   @SqlType(StandardTypes.BOOLEAN)
-  public static boolean isValidVertex(@SqlType(StandardTypes.BIGINT) long vertex) {
-    return H3Plugin.H3.isValidVertex(vertex);
+  public static Boolean isValidVertex(@SqlType(StandardTypes.BIGINT) long vertex) {
+    try {
+      return H3Plugin.H3.isValidVertex(vertex);
+    } catch (Exception e) {
+      return null;
+    }
   }
 }
