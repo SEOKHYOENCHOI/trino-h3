@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/SEOKHYOENCHOI/trino-h3/compare/v1.0.0...v1.1.0) (2025-12-12)
+
+
+### Features
+
+* Add JUnit platform configuration for parallel test execution ([44696ef](https://github.com/SEOKHYOENCHOI/trino-h3/commit/44696efa76b25540c5b0ec77776371b5b767f4a7))
+
+
+### Bug Fixes
+
+* Upgrade Gradle to 8.14 and Shadow to 9.0.0 for JDK 24 support ([e1a93b1](https://github.com/SEOKHYOENCHOI/trino-h3/commit/e1a93b1ca889ecc4e880e3832133c166dd0b8e26))
+
 ## 1.0.0 (2025-12-08)
 
 
