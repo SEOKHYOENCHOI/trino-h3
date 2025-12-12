@@ -1,7 +1,7 @@
 plugins {
     java
     jacoco
-    id("com.gradleup.shadow") version "8.3.5"
+    id("com.gradleup.shadow") version "9.0.0"
     id("com.diffplug.spotless") version "6.25.0"
 }
 
