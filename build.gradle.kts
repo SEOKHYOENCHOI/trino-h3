@@ -26,10 +26,10 @@ version = System.getenv("RELEASE_VERSION")
     ?: project.property("version") as String
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(24))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 
@@ -47,7 +47,7 @@ dependencies {
     // Trino SPI Dependencies (provided) - Version 476 (requires JDK 24)
     compileOnly("io.trino:trino-spi:$trinoVersion")
     compileOnly("io.trino:trino-main:$trinoVersion")
-    compileOnly("io.trino:trino-geospatial:$trinoVersion")
+    compileOnly("io.trino:trino-geospatial-toolkit:$trinoVersion")
     compileOnly("io.trino:trino-plugin-toolkit:$trinoVersion")
     compileOnly("io.airlift:slice:$sliceVersion")
 
@@ -56,7 +56,7 @@ dependencies {
 
     // Test Dependencies
     testImplementation("io.trino:trino-testing:$trinoVersion")
-    testImplementation("io.trino:trino-geospatial:$trinoVersion")
+    testImplementation("io.trino:trino-geospatial-toolkit:$trinoVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
     testImplementation("org.assertj:assertj-core:$assertjVersion")
@@ -106,7 +106,7 @@ tasks.shadowJar {
 
     // Relocate dependencies to avoid conflicts
     relocate("org.locationtech.jts", "io.shchoi.trino.h3.shaded.org.locationtech.jts")
-    relocate("com.uber.h3core", "io.shchoi.trino.h3.shaded.com.uber.h3core")
+   // relocate("com.uber.h3core", "io.shchoi.trino.h3.shaded.com.uber.h3core")
 
     // Exclude signatures and other metadata
     exclude("META-INF/*.SF")

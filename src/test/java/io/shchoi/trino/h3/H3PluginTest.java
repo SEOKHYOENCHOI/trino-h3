@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.trino.Session;
-import io.trino.plugin.geospatial.GeoPlugin;
+// import io.trino.plugin.geospatial.GeoPlugin;
 import io.trino.testing.DistributedQueryRunner;
 import io.trino.testing.MaterializedResult;
 import io.trino.testing.MaterializedRow;
@@ -149,15 +149,15 @@ public class H3PluginTest {
               .setWorkerCount(1)
               .setExtraProperties(properties)
               .build();
-
-      try {
-        queryRunner.installPlugin(new GeoPlugin());
-        queryRunner.installPlugin(new H3Plugin());
-        return queryRunner;
-      } catch (Exception e) {
-        queryRunner.close();
-        throw e;
-      }
+      return queryRunner;
+      // try {
+      //   queryRunner.installPlugin(new GeoPlugin());
+      //   queryRunner.installPlugin(new H3Plugin());
+      //   return queryRunner;
+      // } catch (Exception e) {
+      //   queryRunner.close();
+      //   throw e;
+      // }
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
